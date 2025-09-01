@@ -7,7 +7,7 @@ import {
   selectCurrentLoading,
   selectCurrentError,
 } from "../slice/authSlice";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -74,6 +74,12 @@ const Login = () => {
           Login
         </button>
       </form>
+      <p className="text-center font-sans my-2 p-1">
+        New User?
+        <Link to="/register" className="text-purple-700 ">
+          Register
+        </Link>
+      </p>
     </section>
   );
 };
