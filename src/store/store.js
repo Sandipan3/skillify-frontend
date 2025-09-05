@@ -35,14 +35,21 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// In your Redux store setup file
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    // An array of public routes to ignore for token refresh logic
+    const publicEndpoints = ["/login", "/register"];
+
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      originalRequest.url !== "/login"
+      // This is the crucial check:
+      !publicEndpoints.includes(originalRequest.url)
     ) {
       originalRequest._retry = true;
       try {
