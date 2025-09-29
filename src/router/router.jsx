@@ -1,31 +1,69 @@
 import { createBrowserRouter } from "react-router-dom";
-import Layout from "./Layout";
 import Login from "../pages/Login";
 import React from "react";
 import Register from "../pages/Register";
 import ProtectedRoute from "../components/ProtectedRoute";
-import DummyPage from "../components/DummyPage";
-//import ProtectedRoute from "../components/ProtectedRoute";
+import StudentLayout from "./StudentLayout";
+import InstructorLayout from "./InstructorLayout";
+import AdminLAyout from "./AdminLAyout";
+import Unauthorized from "../pages/Unauthorized";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Layout />,
     children: [
       // Public Routes
       { path: "/login", element: <Login /> },
       { path: "/register", element: <Register /> },
+      { path: "/unauthorized", element: <Unauthorized /> },
 
-      // Protected Routes
+      // Admin only routes - a/
       {
-        element: <ProtectedRoute />,
+        element: <ProtectedRoute allowedRoles={["admin"]} />,
         children: [
-          { path: "/", element: <div>Welcome to your Dashboard!</div> },
-          { path: "/dummy", element: <DummyPage /> },
-          { path: "/yo", element: <div>Welcome to yo</div> },
+          {
+            path: "/a",
+            element: <AdminLAyout />,
+            children: [
+              { index: true, element: <div>Hi admin</div> },
+              { path: "dashboard", element: <div>Admin DashBoard</div> },
+            ],
+          },
+        ],
+      },
+      // Instructor only routes - i/
+      {
+        element: <ProtectedRoute allowedRoles={["instructor"]} />,
+        children: [
+          {
+            path: "/i",
+            element: <InstructorLayout />,
+            children: [
+              { index: true, element: <div>Hi Instructor</div> },
+              { path: "dashboard", element: <div>Admin Instructor</div> },
+            ],
+          },
+        ],
+      },
+      // Student only routes - s/
+      {
+        element: <ProtectedRoute allowedRoles={["student"]} />,
+        children: [
+          {
+            path: "/s",
+            element: <StudentLayout />,
+            children: [
+              { index: true, element: <div>Hi student</div> },
+              { path: "dashboard", element: <div>Admin student</div> },
+            ],
+          },
         ],
       },
     ],
+  },
+  {
+    path: "*",
+    element: <div>404 - Page not found!</div>,
   },
 ]);
 

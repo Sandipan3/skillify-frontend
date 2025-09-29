@@ -6,6 +6,8 @@ import {
   login,
   selectCurrentLoading,
   selectCurrentError,
+  selectCurrentUser,
+  getUser,
 } from "../slice/authSlice";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -25,9 +27,33 @@ const Login = () => {
 
     if (login.fulfilled.match(resultAction)) {
       toast.success("Logged in successfully");
-      navigate("/");
-    } else if (login.rejected.match(resultAction)) {
-      toast.error(resultAction.payload || "Login failed");
+
+      const user = await dispatch(getUser());
+
+      if (!user) toast.error("Unable to fetch user!");
+
+      toast.success(`Welcome back, ${user.payload.name}!`);
+
+      switch (user?.payload?.role) {
+        case "admin":
+          navigate("/a/");
+          break;
+
+        case "instructor":
+          navigate("/i");
+          break;
+
+        case "student":
+          navigate("/s/");
+          break;
+
+        default:
+          toast.error("Login failed ");
+          navigate("/login");
+          break;
+      }
+    } else {
+      toast.error(resultAction.payload);
     }
   };
   return (

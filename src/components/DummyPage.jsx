@@ -19,7 +19,7 @@ const DummyPage = () => {
       <p>This page fetches protected user data upon loading.</p>
       <p>
         <strong>Status:</strong>{" "}
-        {user ? `User "${user.name}" loaded.` : "Loading..."}
+        {user ? `User "${user.role}" loaded.` : "Loading..."}
       </p>
     </div>
   );
