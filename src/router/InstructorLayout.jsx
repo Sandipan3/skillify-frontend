@@ -3,9 +3,9 @@ import { Outlet } from "react-router-dom";
 
 const InstructorLayout = () => {
   return (
-    <div>
+    <main>
       <Outlet />
-    </div>
+    </main>
   );
 };
 
