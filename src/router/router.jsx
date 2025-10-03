@@ -5,8 +5,10 @@ import Register from "../pages/Register";
 import ProtectedRoute from "../components/ProtectedRoute";
 import StudentLayout from "./StudentLayout";
 import InstructorLayout from "./InstructorLayout";
-import AdminLAyout from "./AdminLAyout";
+import AdminLAyout from "./AdminLayout";
 import Unauthorized from "../pages/Unauthorized";
+import InstructorDashboard from "../pages/InstructorDashboard";
+import CreateCourse from "../pages/CreateCourse";
 
 const router = createBrowserRouter([
   {
@@ -39,8 +41,8 @@ const router = createBrowserRouter([
             path: "/i",
             element: <InstructorLayout />,
             children: [
-              { index: true, element: <div>Hi Instructor</div> },
-              { path: "dashboard", element: <div>Admin Instructor</div> },
+              { index: true, element: <InstructorDashboard /> },
+              { path: "create", element: <CreateCourse /> },
             ],
           },
         ],
