@@ -33,7 +33,7 @@ export const getUser = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       });
-      return res.data.data;
+      return res.data.data.user;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
@@ -51,6 +51,7 @@ export const refreshToken = createAsyncThunk(
           withCredentials: true,
         }
       );
+
       return res.data.data.accessToken;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
@@ -69,7 +70,7 @@ export const logoutUser = createAsyncThunk(
           withCredentials: true,
         }
       );
-      return res.data.message;
+      return res.data.data.message;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
@@ -143,11 +144,9 @@ const authSlice = createSlice({
 });
 
 export const { tokenRefreshed } = authSlice.actions;
-
 export const authReducer = authSlice.reducer;
 
 //Selectors
-
 export const selectCurrentUser = (state) => state.auth.user;
 export const selectCurrentToken = (state) => state.auth.token;
 export const selectCurrentError = (state) => state.auth.error;
