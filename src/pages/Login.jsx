@@ -10,6 +10,7 @@ import {
   getUser,
 } from "../slice/authSlice";
 import { Link, useNavigate } from "react-router-dom";
+import SocialLogin from "../components/SocialLogin";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -40,11 +41,15 @@ const Login = () => {
           break;
 
         case "instructor":
-          navigate("/i");
+          navigate("/i/");
           break;
 
         case "student":
           navigate("/s/");
+          break;
+
+        case "user":
+          navigate("/u/");
           break;
 
         default:
@@ -100,6 +105,7 @@ const Login = () => {
           Login
         </button>
       </form>
+      <SocialLogin />
       <p className="text-center font-sans my-2 p-1">
         New User?
         <Link to="/register" className="text-purple-700 ">

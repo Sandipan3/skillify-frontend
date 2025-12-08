@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import api from "../api/api";
+import api from "../api/api"; // Axios instance
 
 const initialState = {
   user: null,
@@ -9,70 +9,86 @@ const initialState = {
   error: null,
 };
 
+/**
+ * LOGIN (email + password)
+ */
 export const login = createAsyncThunk(
   "auth/login",
   async (credentials, { rejectWithValue }) => {
     try {
-      const res = await api.post("/login", credentials, {
-        withCredentials: true,
-      });
+      const res = await api.post("/auth/login", credentials);
       return res.data.data.accessToken;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message);
+      return rejectWithValue(error.response?.data?.message || "Login failed");
     }
   }
 );
 
+/**
+ * GET USER PROFILE
+ */
 export const getUser = createAsyncThunk(
   "auth/getUser",
-  async (_, { getState, rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const { token } = getState().auth;
-      const res = await api.get("/profile", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await api.get("/auth/profile");
       return res.data.data.user;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch user profile"
+      );
     }
   }
 );
 
+/**
+ * REFRESH TOKEN (manual request)
+ * Axios interceptor will handle most auto-refresh scenarios
+ */
 export const refreshToken = createAsyncThunk(
   "auth/refreshToken",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.post(
-        "/refresh",
-        {},
-        {
-          withCredentials: true,
-        }
-      );
-
+      const res = await api.post("/auth/refresh");
       return res.data.data.accessToken;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message);
+      return rejectWithValue(
+        error.response?.data?.message || "Token refresh failed"
+      );
     }
   }
 );
 
+/**
+ * LOGOUT
+ */
 export const logoutUser = createAsyncThunk(
   "auth/logout",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.post(
-        "/logout",
-        {},
-        {
-          withCredentials: true,
-        }
-      );
-      return res.data.data.message;
+      await api.post("/auth/logout");
+      return true;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message);
+      return rejectWithValue(error.response?.data?.message || "Logout failed");
+    }
+  }
+);
+
+/**
+ * HANDLE EXTERNAL TOKEN (Google OAuth)
+ */
+export const handleExternalToken = createAsyncThunk(
+  "auth/handleExternalToken",
+  async (token, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(tokenRefreshed(token)); // set token
+
+      const user = await dispatch(getUser()).unwrap(); // fetch profile
+
+      return user;
+    } catch (error) {
+      await dispatch(logoutUser());
+      return rejectWithValue("Failed to process external login");
     }
   }
 );
@@ -81,13 +97,16 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    tokenRefreshed(state, action) {
+    tokenRefreshed: (state, action) => {
       state.token = action.payload;
       state.isAuthenticated = true;
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
+
+      // LOGIN
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -96,15 +115,17 @@ const authSlice = createSlice({
         state.loading = false;
         state.token = action.payload;
         state.isAuthenticated = true;
-        state.error = null;
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+        state.token = null;
+        state.isAuthenticated = false;
       })
+
+      // GET USER
       .addCase(getUser.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
       .addCase(getUser.fulfilled, (state, action) => {
         state.loading = false;
@@ -114,31 +135,44 @@ const authSlice = createSlice({
       .addCase(getUser.rejected, (state, action) => {
         state.loading = false;
         state.user = null;
-        state.isAuthenticated = false;
         state.error = action.payload;
+        state.isAuthenticated = false;
       })
-      .addCase(refreshToken.pending, (state) => {
-        state.loading = true;
-      })
+
+      // REFRESH TOKEN
       .addCase(refreshToken.fulfilled, (state, action) => {
-        state.loading = false;
         state.token = action.payload;
         state.isAuthenticated = true;
-        state.error = null;
       })
-      .addCase(refreshToken.rejected, (state, action) => {
-        state.loading = false;
+      .addCase(refreshToken.rejected, (state) => {
         state.user = null;
         state.token = null;
         state.isAuthenticated = false;
-        state.error = action.payload;
       })
+
+      // LOGOUT
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
         state.token = null;
         state.isAuthenticated = false;
-        state.loading = false;
+      })
+
+      // EXTERNAL TOKEN (Google)
+      .addCase(handleExternalToken.pending, (state) => {
+        state.loading = true;
         state.error = null;
+      })
+      .addCase(handleExternalToken.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+        state.isAuthenticated = true;
+      })
+      .addCase(handleExternalToken.rejected, (state, action) => {
+        state.loading = false;
+        state.user = null;
+        state.token = null;
+        state.isAuthenticated = false;
+        state.error = action.payload;
       });
   },
 });
@@ -146,7 +180,7 @@ const authSlice = createSlice({
 export const { tokenRefreshed } = authSlice.actions;
 export const authReducer = authSlice.reducer;
 
-//Selectors
+// Selectors
 export const selectCurrentUser = (state) => state.auth.user;
 export const selectCurrentToken = (state) => state.auth.token;
 export const selectCurrentError = (state) => state.auth.error;

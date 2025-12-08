@@ -9,6 +9,9 @@ import AdminLAyout from "./AdminLayout";
 import Unauthorized from "../pages/Unauthorized";
 import InstructorDashboard from "../pages/InstructorDashboard";
 import CreateCourse from "../pages/CreateCourse";
+import ExternalLoginHandler from "../components/ExternalLoginHandler";
+import UserLayout from "./UserLayout";
+import DummyPage from "../pages/DummyPage";
 
 const router = createBrowserRouter([
   {
@@ -18,6 +21,16 @@ const router = createBrowserRouter([
       { path: "/login", element: <Login /> },
       { path: "/register", element: <Register /> },
       { path: "/unauthorized", element: <Unauthorized /> },
+      { path: "/auth/callback", element: <ExternalLoginHandler /> },
+
+      // Protected Routes (any logged-in user)
+      {
+        element: <ProtectedRoute />,
+        children: [
+          { path: "/", element: <div>Welcome to your Dashboard!</div> },
+          { path: "/dummy", element: <DummyPage /> },
+        ],
+      },
 
       // Admin only routes - a/
       {
@@ -56,7 +69,21 @@ const router = createBrowserRouter([
             element: <StudentLayout />,
             children: [
               { index: true, element: <div>Hi student</div> },
-              { path: "dashboard", element: <div>Admin student</div> },
+              { path: "dashboard", element: <div>Dashnoard student</div> },
+            ],
+          },
+        ],
+      },
+      //  User Only Routes
+      {
+        element: <ProtectedRoute allowedRoles={["user"]} />,
+        children: [
+          {
+            path: "/u",
+            element: <UserLayout />,
+            children: [
+              { index: true, element: <div>Hi User</div> },
+              // { path: "dashboard", element: <div>Admin student</div> },
             ],
           },
         ],

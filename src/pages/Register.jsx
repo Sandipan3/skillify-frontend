@@ -1,153 +1,98 @@
 import React, { useState } from "react";
-import api from "../api/api";
-import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import api from "../api/api";
+import SocialLogin from "../components/SocialLogin";
 
 const Register = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState("");
-
   const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
     try {
-      const res = await api.post("/register", { name, email, password, role });
-      console.log(res.data.data.message);
-      if (res.data.status === "success") {
-        toast.success(res.data.data.message);
-        navigate("/login");
-      }
+      const res = await api.post("/register", formData);
+
+      toast.success(res.data.data.message || "Registration successful!");
+      navigate("/login");
     } catch (error) {
-      console.log(error);
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Registration failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <section className="flex flex-col gap-y-2">
-      <div>
-        <h1 className="font-bold text-center text-2xl m-2 p-1">
-          Register your <br />
-          <span className="text-purple-500">Skillify</span> Account
-        </h1>
-      </div>
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-md">
+        <h2 className="text-2xl font-semibold text-center mb-4">
+          Create an Account
+        </h2>
 
-      <form onSubmit={handleSubmit}>
-        {/* name */}
-        <div>
-          <label htmlFor="name" className="text-xl font-serif">
-            Name<span className="text-red-700">*</span>
-          </label>
-          <br />
+        <form onSubmit={handleSubmit} className="space-y-3">
           <input
             type="text"
-            id="name"
-            onChange={(e) => setName(e.target.value)}
-            className="border-2 border-purple-400 my-1 w-full rounded-md p-2 focus:outline-purple-700"
+            name="name"
+            placeholder="Full Name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            className="w-full border p-2 rounded-md"
           />
-        </div>
 
-        {/* email */}
-        <div>
-          <label htmlFor="email" className="text-xl font-serif">
-            Email<span className="text-red-700">*</span>
-          </label>
-          <br />
           <input
             type="email"
-            id="email"
-            onChange={(e) => setEmail(e.target.value)}
-            className="border-2 border-purple-400 my-1 w-full rounded-md p-2 focus:outline-purple-700"
+            name="email"
+            placeholder="Email Address"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            className="w-full border p-2 rounded-md"
           />
-        </div>
 
-        {/* password */}
-        <div className="my-3">
-          <label htmlFor="password" className="text-xl font-serif">
-            Password<span className="text-red-700">*</span>
-          </label>
-          <br />
           <input
             type="password"
-            id="password"
-            onChange={(e) => setPassword(e.target.value)}
-            className="border-2 border-purple-400 my-1 w-full rounded-md p-2 focus:outline-purple-700"
+            name="password"
+            placeholder="Password (8+ chars with symbols)"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            className="w-full border p-2 rounded-md"
           />
-        </div>
 
-        {/* role */}
-        <div className="my-3">
-          <label className="text-xl font-serif block mb-1">
-            Role<span className="text-red-700">*</span>
-          </label>
-          <div className="p-2 flex justify-between">
-            <label
-              htmlFor="admin"
-              className="inline-flex items-center gap-2 cursor-pointer"
-            >
-              <input
-                type="radio"
-                name="role"
-                id="admin"
-                value="admin"
-                checked={role === "admin"}
-                onChange={(e) => setRole(e.target.value)}
-                className="cursor-pointer"
-              />
-              Admin
-            </label>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
+          >
+            {loading ? "Registering..." : "Register"}
+          </button>
+        </form>
 
-            <label
-              htmlFor="student"
-              className="inline-flex items-center gap-2 cursor-pointer"
-            >
-              <input
-                type="radio"
-                name="role"
-                id="student"
-                value="student"
-                checked={role === "student"}
-                onChange={(e) => setRole(e.target.value)}
-                className="cursor-pointer"
-              />
-              Student
-            </label>
+        {/* Social Login Button */}
+        <SocialLogin />
 
-            <label
-              htmlFor="instructor"
-              className="inline-flex items-center gap-2 cursor-pointer"
-            >
-              <input
-                type="radio"
-                name="role"
-                id="instructor"
-                value="instructor"
-                checked={role === "instructor"}
-                onChange={(e) => setRole(e.target.value)}
-                className="cursor-pointer"
-              />
-              Instructor
-            </label>
-          </div>
-        </div>
-
-        {/* submit */}
-        <button
-          type="submit"
-          className="bg-purple-800 text-white w-full rounded-md h-10 cursor-pointer font-sans"
-        >
-          Register
-        </button>
-        <p className="text-center font-sans  my-2 p-1">
-          Already a member?
-          <Link to="/login" className="text-purple-700">
+        <p className="text-center mt-3 text-sm">
+          Already have an account?{" "}
+          <Link to="/login" className="text-blue-600 font-medium">
             Login
           </Link>
         </p>
-      </form>
-    </section>
+      </div>
+    </div>
   );
 };
 
