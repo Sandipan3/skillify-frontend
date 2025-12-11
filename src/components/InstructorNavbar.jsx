@@ -37,9 +37,12 @@ const InstructorNavbar = () => {
       </div>
 
       {/* Mobile */}
-      <div className="md:hidden flex justify-between items-center">
+      <div className="md:hidden flex justify-between items-center relative z-[60]">
         <h1 className="text-xl font-bold">Skillify</h1>
-        <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2">
+        <button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          className="p-2 text-white"
+        >
           {mobileOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>

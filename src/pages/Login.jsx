@@ -11,107 +11,141 @@ import {
 } from "../slice/authSlice";
 import { Link, useNavigate } from "react-router-dom";
 import SocialLogin from "../components/SocialLogin";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import loginSchema from "../schema/LoginSchema";
+import { Eye, EyeOff } from "lucide-react";
 
 const Login = () => {
   const dispatch = useDispatch();
-  const loading = useSelector(selectCurrentLoading);
-  const error = useSelector(selectCurrentError);
-
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const resultAction = await dispatch(login({ email, password }));
+  const {
+    register,
+    handleSubmit,
+    setError,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
-    if (login.fulfilled.match(resultAction)) {
-      toast.success("Logged in successfully");
+  const onSubmit = async (data) => {
+    try {
+      const resultAction = await dispatch(login(data));
 
-      const user = await dispatch(getUser());
-
-      if (!user) toast.error("Unable to fetch user!");
-
-      toast.success(`Welcome back, ${user.payload.name}!`);
-
-      switch (user?.payload?.role) {
-        case "admin":
-          navigate("/a/");
-          break;
-
-        case "instructor":
-          navigate("/i/");
-          break;
-
-        case "student":
-          navigate("/s/");
-          break;
-
-        case "user":
-          navigate("/u/");
-          break;
-
-        default:
-          toast.error("Login failed ");
-          navigate("/login");
-          break;
+      // If login failed (rejected)
+      if (!login.fulfilled.match(resultAction)) {
+        // Throw the backend message so catch() handles it
+        throw { message: resultAction.payload };
       }
-    } else {
-      toast.error(resultAction.payload);
+
+      // Login success (token stored)
+      const userResult = await dispatch(getUser());
+      const user = userResult.payload;
+
+      if (!user) {
+        toast.error("Unable to fetch user!");
+        return;
+      }
+
+      toast.success(`Welcome back, ${user.name}!`);
+
+      const roleRoutes = {
+        admin: "/a/",
+        instructor: "/i/",
+        student: "/s/",
+        user: "/u/",
+      };
+
+      navigate(roleRoutes[user.role] || "/login");
+    } catch (error) {
+      const backendMessage =
+        error?.message || error?.response?.data?.message || "Login failed";
+
+      // Map field-specific messages
+      if (backendMessage.toLowerCase().includes("email")) {
+        setError("email", { message: backendMessage });
+      } else if (backendMessage.toLowerCase().includes("password")) {
+        setError("password", { message: backendMessage });
+      } else {
+        toast.error(backendMessage);
+      }
     }
   };
+
   return (
-    <section className="flex flex-col gap-y-2">
-      <div className="">
-        <h1 className="font-bold text-center text-2xl m-2 p-2">
-          Login to your <br />
-          <span className="text-purple-500">Skillify</span> Account
-        </h1>
+    <section className="flex justify-center items-center min-h-screen bg-gray-100">
+      <div className=" shadow-md rounded-lg p-6 w-full max-w-md bg-zinc-200">
+        <h2 className="text-2xl font-semibold text-center mb-4">
+          Login To Your <br /> <span className="text-purple-800">Skillify</span>{" "}
+          Account
+        </h2>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+          {/* Email */}
+          <div>
+            <input
+              type="email"
+              placeholder="Email"
+              {...register("email")}
+              className={`w-full border p-2 rounded-md ${
+                errors.email ? "border-red-500" : ""
+              }`}
+            />
+            {errors.email && (
+              <p className="text-xs text-red-500">{errors.email.message}</p>
+            )}
+          </div>
+
+          {/* Password */}
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              {...register("password")}
+              className={`w-full border p-2 rounded-md ${
+                errors.password ? "border-red-500" : ""
+              }`}
+            />
+            <button
+              type="button"
+              className="absolute right-1 top-2.5"
+              onClick={() => setShowPassword((prev) => !prev)}
+            >
+              {showPassword ? <Eye /> : <EyeOff />}
+            </button>
+            {errors.password && (
+              <p className="text-xs text-red-500">{errors.password.message}</p>
+            )}
+          </div>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
+          >
+            {isSubmitting ? "Loggin in..." : "Login"}
+          </button>
+        </form>
+
+        {/* Social Login Button */}
+        <SocialLogin />
+
+        <p className="text-center mt-3 text-sm">
+          Already have an account?{" "}
+          <Link to="/register" className="text-blue-600 font-medium">
+            Register
+          </Link>
+        </p>
       </div>
-      <form action="" onSubmit={handleSubmit}>
-        {/* email*/}
-        <div>
-          <label htmlFor="email" className="text-xl font-serif">
-            Email<span className="text-red-700">*</span>
-          </label>
-          <br />
-          <input
-            type="email"
-            name="email"
-            id="email"
-            onChange={(e) => setEmail(e.target.value)}
-            className="border-2 border-purple-400 my-1 w-full rounded-md p-2 focus:outline-purple-700"
-          />
-        </div>
-        {/*password */}
-        <div className="my-3">
-          <label htmlFor="password" className="text-xl font-serif">
-            Password<span className="text-red-700">*</span>
-          </label>
-          <br />
-          <input
-            onChange={(e) => setPassword(e.target.value)}
-            type="password"
-            name="password"
-            id="password"
-            className="border-2 border-purple-400 my-1 w-full rounded-md p-2 focus:outline-purple-700"
-          />
-        </div>
-        <button
-          type="submit"
-          className="bg-purple-800 text-white w-full rounded-md h-10 cursor-pointer font-sans"
-        >
-          Login
-        </button>
-      </form>
-      <SocialLogin />
-      <p className="text-center font-sans my-2 p-1">
-        New User?
-        <Link to="/register" className="text-purple-700 ">
-          Register
-        </Link>
-      </p>
     </section>
   );
 };

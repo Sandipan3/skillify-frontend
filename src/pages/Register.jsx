@@ -3,82 +3,119 @@ import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import api from "../api/api";
 import SocialLogin from "../components/SocialLogin";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import registerSchema from "../schema/registerSchema";
+import { Eye, EyeOff } from "lucide-react";
 
 const Register = () => {
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    setError,
+    reset,
+  } = useForm({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
   });
 
-  const [loading, setLoading] = useState(false);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
+  const onSubmit = async (data) => {
     try {
-      const res = await api.post("/register", formData);
+      const res = await api.post("/register", data);
 
       toast.success(res.data.data.message || "Registration successful!");
+      reset();
       navigate("/login");
     } catch (error) {
-      toast.error(error.response?.data?.message || "Registration failed");
-    } finally {
-      setLoading(false);
+      const backendMessage = error.response?.data?.message;
+
+      // Map backend validation errors into field errors
+      if (backendMessage?.toLowerCase().includes("email")) {
+        setError("email", { message: backendMessage });
+      } else if (backendMessage?.toLowerCase().includes("password")) {
+        setError("password", { message: backendMessage });
+      } else if (backendMessage?.toLowerCase().includes("name")) {
+        setError("name", { message: backendMessage });
+      } else {
+        toast.error(backendMessage || "Registration failed");
+      }
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-md">
+    <section className="flex justify-center items-center min-h-screen bg-gray-100">
+      <div className=" shadow-md rounded-lg p-6 w-full max-w-md bg-zinc-200">
         <h2 className="text-2xl font-semibold text-center mb-4">
-          Create an Account
+          Create Your <br /> <span className="text-purple-800">Skillify</span>{" "}
+          Account
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <input
-            type="text"
-            name="name"
-            placeholder="Full Name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-            className="w-full border p-2 rounded-md"
-          />
+        <form className="space-y-3 " onSubmit={handleSubmit(onSubmit)}>
+          {/* Name */}
+          <div>
+            <input
+              type="text"
+              placeholder="Full Name"
+              {...register("name")}
+              className={`w-full border p-2 rounded-md ${
+                errors.name ? "border-red-500" : ""
+              }`}
+            />
+            {errors.name && (
+              <p className="text-xs text-red-500">{errors.name.message}</p>
+            )}
+          </div>
+          {/* Email */}
+          <div>
+            <input
+              type="email"
+              placeholder="Email"
+              {...register("email")}
+              className={`w-full border p-2 rounded-md ${
+                errors.email ? "border-red-500" : ""
+              }`}
+            />
+            {errors.email && (
+              <p className="text-xs text-red-500">{errors.email.message}</p>
+            )}
+          </div>
+          {/* Password */}
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              {...register("password")}
+              className={`w-full border p-2 rounded-md ${
+                errors.password ? "border-red-500" : ""
+              }`}
+            />
+            <button
+              type="button"
+              className="absolute right-1 top-2.5"
+              onClick={() => setShowPassword((prev) => !prev)}
+            >
+              {showPassword ? <Eye /> : <EyeOff />}
+            </button>
+            {errors.password && (
+              <p className="text-xs text-red-500">{errors.password.message}</p>
+            )}
+          </div>
 
-          <input
-            type="email"
-            name="email"
-            placeholder="Email Address"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            className="w-full border p-2 rounded-md"
-          />
-
-          <input
-            type="password"
-            name="password"
-            placeholder="Password (8+ chars with symbols)"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            className="w-full border p-2 rounded-md"
-          />
-
+          {/* Submit */}
           <button
             type="submit"
-            disabled={loading}
+            disabled={isSubmitting}
             className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
           >
-            {loading ? "Registering..." : "Register"}
+            {isSubmitting ? "Registering..." : "Register"}
           </button>
         </form>
 
@@ -92,7 +129,7 @@ const Register = () => {
           </Link>
         </p>
       </div>
-    </div>
+    </section>
   );
 };
 

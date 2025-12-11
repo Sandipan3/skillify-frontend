@@ -35,37 +35,47 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// In your Redux store setup file
-
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // An array of public routes to ignore for token refresh logic
-    const publicEndpoints = ["/login", "/register"];
+    // If no token exists then never refresh
+    const token = store.getState().auth.token;
+    if (!token) {
+      return Promise.reject(error);
+    }
 
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry &&
-      // This is the crucial check:
-      !publicEndpoints.includes(originalRequest.url)
-    ) {
+    //Prevent refresh on ANY /auth/* routes
+    if (originalRequest.url.startsWith("/auth/")) {
+      return Promise.reject(error);
+    }
+
+    //Handle expired token (401)
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
+
       try {
         const refreshResponse = await api.post(
-          "/refresh",
+          "/auth/refresh",
           {},
           { withCredentials: true }
         );
+
         const newToken = refreshResponse.data.data.accessToken;
+
         store.dispatch(tokenRefreshed(newToken));
+
+        // retry original request with new token
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
+
         return api(originalRequest);
       } catch (err) {
         store.dispatch(logoutUser());
+        return Promise.reject(err);
       }
     }
+
     return Promise.reject(error);
   }
 );

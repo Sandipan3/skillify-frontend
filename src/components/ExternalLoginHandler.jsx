@@ -1,44 +1,30 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import {
-  handleExternalToken,
-  selectCurrentUser,
-  selectIsAuthenticated,
-} from "../slice/authSlice";
+import { handleExternalToken } from "../slice/authSlice";
 import toast from "react-hot-toast";
 
 const ExternalLoginHandler = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Keep these selectors for displaying the loading message if needed,
-  // but they are no longer the primary trigger for the redirect logic.
-  const user = useSelector(selectCurrentUser);
-  const isAuthenticated = useSelector(selectIsAuthenticated);
-
-  // REDIRECT FUNCTION: Define it once to keep the logic clean
   const handleRedirect = (user) => {
     toast.success(`Welcome ${user.name}!`);
 
-    switch (user.role) {
-      case "admin":
-        navigate("/a/");
-        break;
-      case "instructor":
-        navigate("/i/");
-        break;
-      case "student":
-        navigate("/s/");
-        break;
-      case "user":
-        navigate("/u/");
-        break;
-      default:
-        toast.error("Login failed (Invalid Role)");
-        navigate("/login");
-        break;
+    const roleRoutes = {
+      admin: "/a/",
+      instructor: "/i/",
+      student: "/s/",
+      user: "/u/",
+    };
+
+    const path = roleRoutes[user.role] || "/login";
+
+    if (!roleRoutes[user.role]) {
+      toast.error("Login failed (Invalid Role)");
     }
+
+    navigate(path);
   };
 
   useEffect(() => {
@@ -67,11 +53,7 @@ const ExternalLoginHandler = () => {
         toast.error("Authentication failed!");
         navigate("/login");
       });
-
-    // The dependency array is correct: [dispatch, navigate]
   }, [dispatch, navigate]);
-
-  // Remove the second useEffect completely!
 
   return (
     <div className="flex items-center justify-center h-screen">
