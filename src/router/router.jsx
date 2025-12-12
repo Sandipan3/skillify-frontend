@@ -10,8 +10,8 @@ import Unauthorized from "../pages/Unauthorized";
 import InstructorDashboard from "../pages/InstructorDashboard";
 import CreateCourse from "../pages/CreateCourse";
 import ExternalLoginHandler from "../components/ExternalLoginHandler";
-import UserLayout from "./UserLayout";
 import DummyPage from "../pages/DummyPage";
+import SelectRole from "../pages/SelectRole";
 
 const router = createBrowserRouter([
   {
@@ -80,11 +80,7 @@ const router = createBrowserRouter([
         children: [
           {
             path: "/u",
-            element: <UserLayout />,
-            children: [
-              { index: true, element: <div>Hi User</div> },
-              // { path: "dashboard", element: <div>Admin student</div> },
-            ],
+            element: <SelectRole />,
           },
         ],
       },
