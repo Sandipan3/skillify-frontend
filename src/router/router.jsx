@@ -12,6 +12,10 @@ import CreateCourse from "../pages/CreateCourse";
 import ExternalLoginHandler from "../components/ExternalLoginHandler";
 import DummyPage from "../pages/DummyPage";
 import SelectRole from "../pages/SelectRole";
+import InstructorCourses from "../pages/InstructorCourses";
+import ManageVideos from "../pages/ManageVideos";
+import CourseStudents from "../pages/CourseStudents";
+import EditCourse from "../pages/EditCourse";
 
 const router = createBrowserRouter([
   {
@@ -55,11 +59,29 @@ const router = createBrowserRouter([
             element: <InstructorLayout />,
             children: [
               { index: true, element: <InstructorDashboard /> },
+
+              // create course
               { path: "create", element: <CreateCourse /> },
+
+              // my course list
+              { path: "courses", element: <InstructorCourses /> },
+
+              // edit a course
+              { path: "courses/:courseId/edit", element: <EditCourse /> },
+
+              // manage course videos
+              { path: "courses/:courseId/videos", element: <ManageVideos /> },
+
+              // see all students enrolled in a course
+              {
+                path: "courses/:courseId/students",
+                element: <CourseStudents />,
+              },
             ],
           },
         ],
       },
+
       // Student only routes - s/
       {
         element: <ProtectedRoute allowedRoles={["student"]} />,

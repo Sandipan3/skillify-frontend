@@ -14,9 +14,11 @@ const InstructorNavbar = () => {
     setMobileOpen(false);
   };
 
+  // FULL instructor routes
   const navLinks = [
-    { to: "/", label: "Home" },
-    { to: "/create", label: "Create" },
+    { to: "/i", label: "Dashboard" },
+    { to: "/i/create", label: "Create Course" },
+    { to: "/i/courses", label: "My Courses" },
   ];
 
   return (
@@ -26,7 +28,7 @@ const InstructorNavbar = () => {
         <h1 className="text-xl font-bold">Skillify</h1>
         <div className="flex gap-8">
           {navLinks.map((link, index) => (
-            <Link key={index} to={`/i${link.to}`} className="hover:text-white">
+            <Link key={index} to={link.to} className="hover:text-white">
               {link.label}
             </Link>
           ))}
@@ -56,13 +58,14 @@ const InstructorNavbar = () => {
               animate={{ x: "0%" }}
               exit={{ x: "100%" }}
               transition={{ duration: 0.3 }}
-              className="md:hidden fixed top-0 right-0 h-full w-64 bg-amber-500 z-50 p-6"
+              className="md:hidden fixed top-0 right-0 h-full w-50 bg-amber-500 z-50 p-6"
             >
               <div className="flex flex-col gap-6">
+                <div className="h-5"></div>
                 {navLinks.map((link, index) => (
                   <Link
                     key={index}
-                    to={`/i${link.to}`}
+                    to={link.to}
                     className="hover:text-white"
                     onClick={() => setMobileOpen(false)}
                   >
@@ -77,6 +80,7 @@ const InstructorNavbar = () => {
                 </button>
               </div>
             </motion.div>
+
             <div
               className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
               onClick={() => setMobileOpen(false)}
