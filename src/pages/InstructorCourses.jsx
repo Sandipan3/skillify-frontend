@@ -8,15 +8,18 @@ const InstructorCourses = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch instructor courses + enrolled count
-  const fetchCourses = async () => {
+  // pagination states
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  // Fetch instructor courses for specific page
+  const fetchCourses = async (pageNumber = 1) => {
     setLoading(true);
 
     try {
-      const res = await api.get("/course/my-courses");
-      const list = res.data.data.courses;
+      const res = await api.get(`/course/my-courses?page=${pageNumber}`);
 
-      // Add enrolled counts to each course
+      const list = res.data.data.courses;
       const updatedCourses = await Promise.all(
         list.map(async (course) => {
           try {
@@ -31,7 +34,9 @@ const InstructorCourses = () => {
       );
 
       setCourses(updatedCourses);
-    } catch (err) {
+      setPage(res.data.data.page);
+      setTotalPages(res.data.data.totalPages);
+    } catch (error) {
       toast.error("Failed to load courses");
     }
 
@@ -39,10 +44,10 @@ const InstructorCourses = () => {
   };
 
   useEffect(() => {
-    fetchCourses();
-  }, []);
+    fetchCourses(page);
+  }, [page]);
 
-  // Delete course using custom toast
+  // Delete course using toast
   const deleteCourse = (id) => {
     toast((t) => (
       <DeleteCourseToast
@@ -52,9 +57,9 @@ const InstructorCourses = () => {
           try {
             await api.delete(`/course/${id}`);
             toast.success("Course deleted");
-            fetchCourses();
+            fetchCourses(page);
           } catch {
-            toast.error("Failed to delete course");
+            toast.error("Failed to delete");
           }
         }}
       />
@@ -68,8 +73,10 @@ const InstructorCourses = () => {
       {loading && <p>Loading...</p>}
       {!loading && courses.length === 0 && <p>No courses found.</p>}
 
-      {/* Grid layout */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Responsive Grid:
+          Mobile/Tablets → 1 column
+          Desktop → 3 columns */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {!loading &&
           courses.map((course) => (
             <CourseCard
@@ -78,6 +85,35 @@ const InstructorCourses = () => {
               onDelete={deleteCourse}
             />
           ))}
+      </div>
+
+      {/* PAGINATION CONTROLS */}
+      <div className="mt-8 flex justify-center items-center gap-3">
+        <button
+          disabled={page === 1}
+          onClick={() => setPage((p) => p - 1)}
+          className={`px-4 py-2 rounded border ${
+            page === 1 ? "opacity-40 cursor-not-allowed" : "hover:bg-gray-200"
+          }`}
+        >
+          Prev
+        </button>
+
+        <span className="px-4 py-2 font-semibold">
+          Page {page} of {totalPages}
+        </span>
+
+        <button
+          disabled={page === totalPages}
+          onClick={() => setPage((p) => p + 1)}
+          className={`px-4 py-2 rounded border ${
+            page === totalPages
+              ? "opacity-40 cursor-not-allowed"
+              : "hover:bg-gray-200"
+          }`}
+        >
+          Next
+        </button>
       </div>
     </div>
   );

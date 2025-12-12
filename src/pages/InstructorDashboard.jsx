@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
 import api from "../api/api";
 import { useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { selectCurrentUser } from "../slice/authSlice";
 
 const InstructorDashboard = () => {
+  const user = useSelector(selectCurrentUser);
+
   const [stats, setStats] = useState({
     totalCourses: 0,
     totalStudents: 0,
@@ -57,6 +61,9 @@ const InstructorDashboard = () => {
   return (
     <div className="p-6 space-y-8">
       <h1 className="text-3xl font-bold">Instructor Dashboard</h1>
+      <h3 className="text-2xl font-bold text-black ">
+        Welcome <span className="text-amber-500 italic">{user.name}</span>
+      </h3>
 
       {/* STATS CARDS */}
       <div className="grid md:grid-cols-3 gap-6">
