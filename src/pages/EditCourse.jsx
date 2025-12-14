@@ -97,15 +97,21 @@ const EditCourse = () => {
       }
     }
 
-    const updatePromise = api.put(`/course/${courseId}`, formData);
+    // FIX 1: Chain the asynchronous parts (fetchCourse and navigation)
+    // before the final resolution of the promise.
+    const updatePromise = api
+      .put(`/course/${courseId}`, formData)
+      .then(async (res) => {
+        await fetchCourse();
+        // Use setTimeout to ensure the toast has time to display before navigating away
+        setTimeout(() => navigate("/i/courses"), 600);
+        return res; // Resolve the promise after async tasks are done
+      });
 
     await toast.promise(updatePromise, {
       loading: "Saving changes...",
-      success: async () => {
-        await fetchCourse();
-        setTimeout(() => navigate("/i/courses"), 600);
-        return "Course updated successfully!";
-      },
+      // FIX 2: success is now a simple string.
+      success: "Course updated successfully!",
       error: (err) => err.response?.data?.message || "Update failed",
     });
 
@@ -118,6 +124,7 @@ const EditCourse = () => {
     const formData = new FormData();
     formData.append("videos", file);
 
+    // FIX 3: Chain fetchCourse to run before the promise resolves.
     const replaceAndRefreshPromise = api
       .put(`/course/${courseId}/videos/${videoId}/replace`, formData)
       .then(async (res) => {
@@ -127,7 +134,7 @@ const EditCourse = () => {
 
     await toast.promise(replaceAndRefreshPromise, {
       loading: "Replacing video...",
-
+      // FIX 4: success is now a simple string.
       success: "Video replaced successfully!",
       error: (err) => err.response?.data?.message || "Replace failed",
     });
@@ -139,6 +146,7 @@ const EditCourse = () => {
         t={t}
         message="Delete this video?"
         onConfirm={async () => {
+          // FIX 5: Chain fetchCourse to run before the promise resolves.
           const deleteAndRefreshPromise = api
             .delete(`/course/${courseId}/videos/${videoId}`)
             .then(async (res) => {
@@ -148,7 +156,7 @@ const EditCourse = () => {
 
           await toast.promise(deleteAndRefreshPromise, {
             loading: "Deleting video...",
-
+            // FIX 6: success is now a simple string.
             success: "Video deleted successfully!",
             error: (err) => err.response?.data?.message || "Delete failed",
           });

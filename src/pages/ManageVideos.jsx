@@ -37,16 +37,17 @@ const ManageVideos = () => {
         t={t}
         message="Delete this video?"
         onConfirm={async () => {
-          // This promise chain will be passed to toast.promise
+          // FIX: Chain the delete API call and the fetchCourse refresh.
           const deleteAndRefreshPromise = api
             .delete(`/course/${courseId}/videos/${videoId}`)
             .then(async (res) => {
               await fetchCourse();
-              return res;
+              return res; // Resolve the promise chain
             });
 
           await toast.promise(deleteAndRefreshPromise, {
             loading: "Deleting video...",
+            // FIX: success is now a simple string for auto-dismissal.
             success: "Video deleted successfully!",
             error: (err) =>
               err.response?.data?.message || "Failed to delete video",
@@ -65,16 +66,17 @@ const ManageVideos = () => {
     const formData = new FormData();
     formData.append("videos", file);
 
-    // Create a promise chain that includes the API call and the course refresh
+    // FIX: Chain the replace API call and the fetchCourse refresh.
     const replaceAndRefreshPromise = api
       .put(`/course/${courseId}/videos/${videoId}/replace`, formData)
       .then(async (res) => {
         await fetchCourse();
-        return res;
+        return res; // Resolve the promise chain
       });
 
     await toast.promise(replaceAndRefreshPromise, {
       loading: "Replacing video...",
+      // FIX: success is now a simple string for auto-dismissal.
       success: "Video replaced successfully!",
       error: (err) => err.response?.data?.message || "Failed to replace video",
     });
