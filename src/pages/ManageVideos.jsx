@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../api/api";
 import toast from "react-hot-toast";
-import DeleteConfirmationToast from "../components/DeleteConfirmationToast";
 
 const ManageVideos = () => {
   const { courseId } = useParams();
@@ -35,7 +34,7 @@ const ManageVideos = () => {
 
         <div className="flex justify-end gap-2">
           <button
-            className="px-3 py-1 bg-gray-200 rounded"
+            className="px-3 py-1  rounded"
             onClick={() => toast.dismiss(toastId)}
           >
             Cancel
@@ -61,8 +60,7 @@ const ManageVideos = () => {
             Delete
           </button>
         </div>
-      </div>,
-      { duration: Infinity }
+      </div>
     );
   };
 
