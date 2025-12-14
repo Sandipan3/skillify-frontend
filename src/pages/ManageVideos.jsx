@@ -30,21 +30,20 @@ const ManageVideos = () => {
   }, [courseId]);
 
   const deleteVideo = (videoId) => {
-    toast.custom(
-      (t) => (
-        <DeleteConfirmationToast
-          t={t}
-          message="Delete this video? This action cannot be undone."
-          confirmText="Delete"
-          cancelText="Cancel"
-          onConfirm={async () => {
-            try {
-              await toast.promise(
+    toast(
+      <div className="flex flex-col gap-3">
+        <p className="font-medium">Delete this video?</p>
+        <p className="text-sm text-gray-600">This action cannot be undone.</p>
+        <div className="flex gap-2 justify-end mt-2">
+          <button
+            onClick={() => {
+              toast.dismiss(); // dismiss all current toasts (or target specific if multiple)
+
+              toast.promise(
                 api
                   .delete(`/course/${courseId}/videos/${videoId}`)
-                  .then(async (res) => {
+                  .then(async () => {
                     await fetchCourse();
-                    return res;
                   }),
                 {
                   loading: "Deleting video...",
@@ -53,22 +52,25 @@ const ManageVideos = () => {
                     err.response?.data?.message || "Failed to delete video",
                 },
                 {
-                  success: { duration: 3000 }, // normal auto-dismiss for success
+                  success: { duration: 3000 },
                   error: { duration: 4000 },
-                  loading: { duration: Infinity },
                 }
               );
-            } catch (error) {
-              // This catch is redundant because toast.promise handles errors
-              // But kept for safety
-              toast.error(error?.response?.data?.message || "Delete failed");
-            }
-          }}
-        />
-      ),
+            }}
+            className="bg-red-500 text-white px-3 py-1.5 rounded text-sm hover:bg-red-600"
+          >
+            Yes, Delete
+          </button>
+          <button
+            onClick={() => toast.dismiss()}
+            className="bg-gray-300 px-3 py-1.5 rounded text-sm hover:bg-gray-400"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>,
       {
-        duration: Infinity, // ← Critical: Keep open until user interacts
-        // position: 'top-center', // optional: better for modals
+        duration: Infinity,
       }
     );
   };
