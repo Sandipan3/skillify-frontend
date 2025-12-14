@@ -49,6 +49,10 @@ const ManageVideos = () => {
                   success: "Video deleted successfully!",
                   error: (err) =>
                     err.response?.data?.message || "Failed to delete video",
+                },
+                {
+                  success: { duration: 2000 },
+                  error: { duration: 3000 },
                 }
               );
             } catch (error) {
@@ -82,6 +86,10 @@ const ManageVideos = () => {
           success: "Video replaced successfully!",
           error: (err) =>
             err.response?.data?.message || "Failed to replace video",
+        },
+        {
+          success: { duration: 2000 },
+          error: { duration: 3000 },
         }
       );
     } catch (error) {
