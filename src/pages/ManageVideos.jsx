@@ -7,7 +7,6 @@ import DeleteVideoToast from "../components/DeleteVideoToast";
 const ManageVideos = () => {
   const { courseId } = useParams();
 
-  // Initialize with safe defaults
   const [loading, setLoading] = useState(true);
   const [course, setCourse] = useState({ videos: [] });
   const [replacingVideoId, setReplacingVideoId] = useState(null);
@@ -33,18 +32,27 @@ const ManageVideos = () => {
 
   // Delete video
   const deleteVideo = (videoId) => {
-    DeleteVideoToast(async () => {
-      const deletePromise = api.delete(`/course/${courseId}/videos/${videoId}`);
+    toast.custom((t) => (
+      <DeleteVideoToast
+        t={t}
+        message="Delete this video?"
+        onConfirm={async () => {
+          const deletePromise = api.delete(
+            `/course/${courseId}/videos/${videoId}`
+          );
 
-      await toast.promise(deletePromise, {
-        loading: "Deleting video...",
-        success: async () => {
-          await fetchCourse();
-          return "Video deleted successfully!";
-        },
-        error: (err) => err.response?.data?.message || "Failed to delete video",
-      });
-    });
+          await toast.promise(deletePromise, {
+            loading: "Deleting video...",
+            success: async () => {
+              await fetchCourse();
+              return "Video deleted successfully!";
+            },
+            error: (err) =>
+              err.response?.data?.message || "Failed to delete video",
+          });
+        }}
+      />
+    ));
   };
 
   // Replace video
@@ -58,8 +66,7 @@ const ManageVideos = () => {
 
     const replacePromise = api.put(
       `/course/${courseId}/videos/${videoId}/replace`,
-      formData,
-      { headers: { "Content-Type": "multipart/form-data" } }
+      formData
     );
 
     await toast.promise(replacePromise, {
