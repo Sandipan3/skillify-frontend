@@ -28,29 +28,42 @@ const ManageVideos = () => {
     fetchCourse();
   }, [courseId]);
 
-  const deleteVideo = (videoId) => {
-    toast((t) => (
-      <DeleteConfirmationToast
-        t={t}
-        message="Delete this video?"
-        onConfirm={async () => {
-          await toast.promise(
-            api
-              .delete(`/course/${courseId}/videos/${videoId}`)
-              .then(fetchCourse),
-            {
-              loading: "Deleting video...",
-              success: "Video deleted",
-              error: "Delete failed",
-            },
-            {
-              success: { duration: 2000 },
-              error: { duration: 3000 },
-            }
-          );
-        }}
-      />
-    ));
+  const deleteVideo = async (videoId) => {
+    const toastId = toast(
+      <div className="bg-white p-4 rounded shadow flex flex-col gap-3">
+        <p className="font-medium">Delete this video?</p>
+
+        <div className="flex justify-end gap-2">
+          <button
+            className="px-3 py-1 bg-gray-200 rounded"
+            onClick={() => toast.dismiss(toastId)}
+          >
+            Cancel
+          </button>
+
+          <button
+            className="px-3 py-1 bg-red-500 text-white rounded"
+            onClick={async () => {
+              toast.dismiss(toastId);
+
+              await toast.promise(
+                api
+                  .delete(`/course/${courseId}/videos/${videoId}`)
+                  .then(fetchCourse),
+                {
+                  loading: "Deleting video...",
+                  success: "Video deleted",
+                  error: "Delete failed",
+                }
+              );
+            }}
+          >
+            Delete
+          </button>
+        </div>
+      </div>,
+      { duration: Infinity }
+    );
   };
 
   const replaceVideo = async (videoId, file) => {
