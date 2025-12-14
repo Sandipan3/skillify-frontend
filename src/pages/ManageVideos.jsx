@@ -40,7 +40,7 @@ const ManageVideos = () => {
               .then(fetchCourse),
             {
               loading: "Deleting video...",
-              success: "Video deleted",
+              success: { message: "Video deleted", duration: 2000 },
               error: "Delete failed",
             }
           );
