@@ -2,7 +2,7 @@ import React from "react";
 
 const SocialLogin = () => {
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:5000/api/v1/auth/google";
+    window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/google`;
   };
 
   return (
