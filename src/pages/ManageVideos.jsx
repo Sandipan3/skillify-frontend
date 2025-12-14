@@ -27,14 +27,14 @@ const ManageVideos = () => {
     fetchCourse();
   }, [courseId]);
 
-  const deleteVideo = async (videoId) => {
+  const deleteVideo = (videoId) => {
     const toastId = toast(
       <div className="bg-white p-4 rounded shadow flex flex-col gap-3">
         <p className="font-medium">Delete this video?</p>
 
         <div className="flex justify-end gap-2">
           <button
-            className="px-3 py-1  rounded"
+            className="px-3 py-1 rounded"
             onClick={() => toast.dismiss(toastId)}
           >
             Cancel
@@ -45,16 +45,17 @@ const ManageVideos = () => {
             onClick={async () => {
               toast.dismiss(toastId);
 
-              await toast.promise(
-                api
-                  .delete(`/course/${courseId}/videos/${videoId}`)
-                  .then(fetchCourse),
-                {
-                  loading: "Deleting video...",
-                  success: "Video deleted",
-                  error: "Delete failed",
-                }
+              const deletePromise = api.delete(
+                `/course/${courseId}/videos/${videoId}`
               );
+
+              await toast.promise(deletePromise, {
+                loading: "Deleting video...",
+                success: "Video deleted",
+                error: "Delete failed",
+              });
+
+              await fetchCourse();
             }}
           >
             Delete
