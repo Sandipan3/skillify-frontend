@@ -8,7 +8,8 @@ import { useNavigate } from "react-router-dom";
 
 const CreateCourse = () => {
   const navigate = useNavigate();
-  // preview states
+
+  // Preview states
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
   const [videoPreviewNames, setVideoPreviewNames] = useState([]);
 
@@ -21,29 +22,27 @@ const CreateCourse = () => {
     resolver: zodResolver(createCourseSchema),
   });
 
-  // watch file inputs
+  // Watch file inputs
   const thumbnailWatch = watch("thumbnail");
   const videosWatch = watch("videos");
 
-  // handle thumbnail preview
+  // Thumbnail preview
   useEffect(() => {
     if (thumbnailWatch && thumbnailWatch.length > 0) {
-      const file = thumbnailWatch[0];
-      setThumbnailPreview(URL.createObjectURL(file));
+      setThumbnailPreview(URL.createObjectURL(thumbnailWatch[0]));
     }
   }, [thumbnailWatch]);
 
-  // handle video file preview
+  // Video names preview
   useEffect(() => {
     if (videosWatch && videosWatch.length > 0) {
-      const filesArray = Array.from(videosWatch);
-      setVideoPreviewNames(filesArray.map((f) => f.name));
+      setVideoPreviewNames(Array.from(videosWatch).map((f) => f.name));
     } else {
       setVideoPreviewNames([]);
     }
   }, [videosWatch]);
 
-  // SUBMIT FORM
+  // Submit form
   const onSubmit = async (data) => {
     try {
       const formData = new FormData();
@@ -51,6 +50,10 @@ const CreateCourse = () => {
       formData.append("title", data.title);
       formData.append("description", data.description);
       formData.append("price", data.price ?? 0);
+
+      if (data.upiId) {
+        formData.append("upiId", data.upiId);
+      }
 
       formData.append("thumbnail", data.thumbnail[0]);
 
@@ -84,8 +87,8 @@ const CreateCourse = () => {
             type="text"
             {...register("title")}
             className="w-full p-3 border rounded-lg"
-            placeholder="Enter a course title..."
-            disabled={isSubmitting} // disable while submitting
+            placeholder="Enter course title"
+            disabled={isSubmitting}
           />
           {errors.title && (
             <p className="text-red-500 text-sm">{errors.title.message}</p>
@@ -99,7 +102,7 @@ const CreateCourse = () => {
             {...register("description")}
             rows={5}
             className="w-full p-3 border rounded-lg"
-            placeholder="Write a detailed course description..."
+            placeholder="Course description"
             disabled={isSubmitting}
           />
           {errors.description && (
@@ -109,7 +112,7 @@ const CreateCourse = () => {
 
         {/* Price */}
         <div className="space-y-2">
-          <label className="font-semibold block">Price (optional)</label>
+          <label className="font-semibold block">Price</label>
           <input
             type="number"
             {...register("price")}
@@ -118,76 +121,77 @@ const CreateCourse = () => {
             disabled={isSubmitting}
           />
           {errors.price && (
-            <p className="text-red-500 text-sm mt-1">{errors.price.message}</p>
+            <p className="text-red-500 text-sm">{errors.price.message}</p>
           )}
         </div>
 
-        {/* GRID: THUMBNAIL + VIDEOS */}
+        {/* UPI ID */}
+        <div className="space-y-2">
+          <label className="font-semibold block">
+            UPI ID (for paid courses)
+          </label>
+          <input
+            type="text"
+            {...register("upiId")}
+            className="w-full p-3 border rounded-lg"
+            placeholder="example@upi"
+            disabled={isSubmitting}
+          />
+        </div>
+
+        {/* Thumbnail + Videos */}
         <div className="grid md:grid-cols-2 gap-6">
           {/* Thumbnail */}
           <div className="space-y-3">
             <label className="font-semibold block">Thumbnail</label>
-            <div className="border rounded-lg p-3">
-              <input
-                type="file"
-                accept="image/*"
-                {...register("thumbnail")}
-                className="w-full"
-                disabled={isSubmitting}
+            <input
+              type="file"
+              accept="image/*"
+              {...register("thumbnail")}
+              disabled={isSubmitting}
+            />
+            {errors.thumbnail && (
+              <p className="text-red-500 text-sm">{errors.thumbnail.message}</p>
+            )}
+            {thumbnailPreview && (
+              <img
+                src={thumbnailPreview}
+                alt="Thumbnail Preview"
+                className="mt-3 h-32 w-full object-cover rounded-md"
               />
-
-              {errors.thumbnail && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.thumbnail.message}
-                </p>
-              )}
-
-              {thumbnailPreview && (
-                <img
-                  src={thumbnailPreview}
-                  className="mt-3 h-32 w-full object-cover rounded-md"
-                  alt="Thumbnail Preview"
-                />
-              )}
-            </div>
+            )}
           </div>
 
-          {/* Video */}
+          {/* Videos */}
           <div className="space-y-3">
             <label className="font-semibold block">Course Videos</label>
-            <div className="border rounded-lg p-3">
-              <input
-                type="file"
-                accept="video/*"
-                multiple
-                {...register("videos")}
-                className="w-full"
-                disabled={isSubmitting}
-              />
-
-              {errors.videos && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.videos.message}
-                </p>
-              )}
-
-              {videoPreviewNames.length > 0 && (
-                <ul className="mt-3 text-sm text-gray-800 space-y-1">
-                  {videoPreviewNames.map((name, i) => (
-                    <li key={i}>📹 {name}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
+            <input
+              type="file"
+              accept="video/*"
+              multiple
+              {...register("videos")}
+              disabled={isSubmitting}
+            />
+            {errors.videos && (
+              <p className="text-red-500 text-sm">{errors.videos.message}</p>
+            )}
+            {videoPreviewNames.length > 0 && (
+              <ul className="mt-3 text-sm space-y-1">
+                {videoPreviewNames.map((name, i) => (
+                  <li key={i}>📹 {name}</li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
 
-        {/* Submit Button */}
+        {/* Submit */}
         <button
           type="submit"
           disabled={isSubmitting}
-          className={`w-full text-white font-semibold py-3 rounded-lg transition 
-            ${isSubmitting ? "bg-gray-400 " : "bg-amber-500 "}`}
+          className={`w-full py-3 text-white font-semibold rounded-lg ${
+            isSubmitting ? "bg-gray-400" : "bg-amber-500"
+          }`}
         >
           {isSubmitting ? "Creating Course..." : "Create Course"}
         </button>

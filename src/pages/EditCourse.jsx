@@ -32,7 +32,7 @@ const EditCourse = () => {
   const thumbnailWatch = watch("thumbnail");
   const videosWatch = watch("videos");
 
-  // Load course data
+  // Load course
   const fetchCourse = async () => {
     setLoading(true);
     try {
@@ -41,11 +41,13 @@ const EditCourse = () => {
 
       setCourse({ ...c, videos: c.videos || [] });
 
-      // Fill form with existing values
+      // populate form
       setValue("title", c.title);
       setValue("description", c.description);
       setValue("price", c.price);
+      setValue("upiId", ""); // allow edit / overwrite
       setValue("videos", []);
+
       setThumbnailPreview(c.thumbnail?.url || null);
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to load course");
@@ -89,6 +91,10 @@ const EditCourse = () => {
       formData.append("description", data.description);
       formData.append("price", data.price ?? 0);
 
+      if (data.upiId) {
+        formData.append("upiId", data.upiId);
+      }
+
       if (data.thumbnail?.length > 0) {
         formData.append("thumbnail", data.thumbnail[0]);
       }
@@ -105,7 +111,6 @@ const EditCourse = () => {
 
       toast.success("Course updated successfully!");
       await fetchCourse();
-
       setTimeout(() => navigate("/i/courses"), 600);
     } catch (error) {
       toast.error(error.response?.data?.message || "Update failed");
@@ -138,11 +143,6 @@ const EditCourse = () => {
 
   // Delete video
   const deleteVideo = async (videoId) => {
-    if (!videoId) {
-      toast.error("Invalid video ID");
-      return;
-    }
-
     DeleteVideoToast(async () => {
       const toastId = toast.loading("Deleting video...");
       try {
@@ -152,7 +152,7 @@ const EditCourse = () => {
         fetchCourse();
       } catch (error) {
         toast.dismiss(toastId);
-        toast.error(error.response?.data?.message || "Failed to delete video");
+        toast.error(error.response?.data?.message || "Delete failed");
       }
     });
   };
@@ -171,7 +171,6 @@ const EditCourse = () => {
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Edit Course</h1>
 
-      {/* EDIT FORM */}
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="bg-white p-6 rounded-lg shadow space-y-6"
@@ -179,10 +178,8 @@ const EditCourse = () => {
         <div>
           <label className="font-semibold">Course Title</label>
           <input
-            type="text"
             {...register("title")}
             className="w-full mt-1 p-2 border rounded"
-            disabled={saving}
           />
           {errors.title && (
             <p className="text-red-500 text-sm">{errors.title.message}</p>
@@ -195,20 +192,26 @@ const EditCourse = () => {
             rows={5}
             {...register("description")}
             className="w-full mt-1 p-2 border rounded"
-            disabled={saving}
           />
-          {errors.description && (
-            <p className="text-red-500 text-sm">{errors.description.message}</p>
-          )}
         </div>
 
         <div>
           <label className="font-semibold">Price</label>
           <input
             type="number"
-            {...register("price", { valueAsNumber: true })}
+            {...register("price")}
             className="w-full mt-1 p-2 border rounded"
-            disabled={saving}
+          />
+        </div>
+
+        {/* UPI ID */}
+        <div>
+          <label className="font-semibold">UPI ID</label>
+          <input
+            type="text"
+            {...register("upiId")}
+            placeholder="example@upi"
+            className="w-full mt-1 p-2 border rounded"
           />
         </div>
 
@@ -220,13 +223,12 @@ const EditCourse = () => {
               accept="image/*"
               {...register("thumbnail")}
               className="mt-2"
-              disabled={saving}
             />
             {thumbnailPreview && (
               <img
                 src={thumbnailPreview}
                 className="mt-3 h-32 w-full object-cover rounded"
-                alt="thumb"
+                alt="Thumbnail"
               />
             )}
           </div>
@@ -239,7 +241,6 @@ const EditCourse = () => {
               multiple
               {...register("videos")}
               className="mt-2"
-              disabled={saving}
             />
             {videoNames.length > 0 && (
               <ul className="mt-2 text-sm">
@@ -253,15 +254,13 @@ const EditCourse = () => {
 
         <button
           type="submit"
-          disabled={saving}
-          className={`w-full text-white font-semibold py-3 rounded-lg 
-          ${saving ? "bg-gray-400" : "bg-amber-500 hover:bg-amber-600"}`}
+          className="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-lg"
         >
-          {saving ? "Saving..." : "Save Changes"}
+          Save Changes
         </button>
       </form>
 
-      {/* EXISTING VIDEOS */}
+      {/* Existing Videos */}
       <div className="mt-10">
         <h2 className="text-xl font-semibold mb-3">Existing Videos</h2>
 
