@@ -8,11 +8,9 @@ const InstructorCourses = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // pagination states
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  // Fetch instructor courses for specific page
   const fetchCourses = async (pageNumber = 1) => {
     setLoading(true);
 
@@ -36,40 +34,35 @@ const InstructorCourses = () => {
       setCourses(updatedCourses);
       setPage(res.data.data.page);
       setTotalPages(res.data.data.totalPages);
-    } catch (error) {
+    } catch {
       toast.error("Failed to load courses");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   useEffect(() => {
     fetchCourses(page);
   }, [page]);
 
-  // Delete course using confirmation toast
   const deleteCourse = (courseId) => {
-    toast.custom(
-      (t) => (
-        <DeleteConfirmationToast
-          t={t}
-          message="Delete this course and all its content?"
-          onConfirm={async () => {
-            try {
-              await toast.promise(api.delete(`/course/${courseId}`), {
-                loading: "Deleting course...",
-                success: "Course deleted successfully!",
-                error: (err) => err?.response?.data?.message || "Delete failed",
-              });
-              fetchCourses(page);
-            } catch (error) {
-              toast.error(error?.response?.data?.message || "Delete failed");
-            }
-          }}
-        />
-      ),
-      { duration: 3000 }
-    );
+    toast.custom((t) => (
+      <DeleteConfirmationToast
+        t={t}
+        message="Delete this course and all its content?"
+        onConfirm={async () => {
+          const deletePromise = api.delete(`/course/${courseId}`);
+
+          await toast.promise(deletePromise, {
+            loading: "Deleting course...",
+            success: "Course deleted successfully!",
+            error: (err) => err?.response?.data?.message || "Delete failed",
+          });
+
+          await fetchCourses(page);
+        }}
+      />
+    ));
   };
 
   return (

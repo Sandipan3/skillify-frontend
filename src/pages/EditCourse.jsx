@@ -5,7 +5,6 @@ import editCourseSchema from "../schema/editCourseSchema";
 import api from "../api/api";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
-import DeleteConfirmationToast from "../components/DeleteConfirmationToast";
 
 const EditCourse = () => {
   const { courseId } = useParams();
@@ -98,22 +97,16 @@ const EditCourse = () => {
     }
 
     try {
-      await toast.promise(
-        api.put(`/course/${courseId}`, formData).then(async (res) => {
-          await fetchCourse();
-          return res;
-        }),
-        {
-          loading: "Saving changes...",
-          success: (res) => {
-            setTimeout(() => navigate("/i/courses"), 1500);
-            return "Course updated successfully!";
-          },
-          error: (err) => err.response?.data?.message || "Update failed",
-        }
-      );
-    } catch (error) {
-      toast.error(error?.response?.data?.message || "Update failed");
+      const updatePromise = api.put(`/course/${courseId}`, formData);
+
+      await toast.promise(updatePromise, {
+        loading: "Saving changes...",
+        success: "Course updated successfully!",
+        error: (err) => err.response?.data?.message || "Update failed",
+      });
+
+      await fetchCourse();
+      setTimeout(() => navigate("/i/courses"), 1500);
     } finally {
       setSaving(false);
     }
@@ -125,55 +118,30 @@ const EditCourse = () => {
     const formData = new FormData();
     formData.append("videos", file);
 
-    try {
-      await toast.promise(
-        api
-          .put(`/course/${courseId}/videos/${videoId}/replace`, formData)
-          .then(async (res) => {
-            await fetchCourse();
-            return res;
-          }),
-        {
-          loading: "Replacing video...",
-          success: "Video replaced successfully!",
-          error: (err) => err.response?.data?.message || "Replace failed",
-        }
-      );
-    } catch (error) {
-      toast.error(error?.response?.data?.message || "Replace failed");
-    }
+    const replacePromise = api.put(
+      `/course/${courseId}/videos/${videoId}/replace`,
+      formData
+    );
+
+    await toast.promise(replacePromise, {
+      loading: "Replacing video...",
+      success: "Video replaced successfully!",
+      error: (err) => err.response?.data?.message || "Replace failed",
+    });
+
+    await fetchCourse();
   };
 
-  const deleteVideo = (videoId) => {
-    toast.custom(
-      (t) => (
-        <DeleteConfirmationToast
-          t={t}
-          message="Delete this video?"
-          onConfirm={async () => {
-            try {
-              await toast.promise(
-                api
-                  .delete(`/course/${courseId}/videos/${videoId}`)
-                  .then(async (res) => {
-                    await fetchCourse();
-                    return res;
-                  }),
-                {
-                  loading: "Deleting video...",
-                  success: "Video deleted successfully!",
-                  error: (err) =>
-                    err.response?.data?.message || "Delete failed",
-                }
-              );
-            } catch (error) {
-              toast.error(error?.response?.data?.message || "Delete failed");
-            }
-          }}
-        />
-      ),
-      { duration: 3000 }
-    );
+  const deleteVideo = async (videoId) => {
+    const deletePromise = api.delete(`/course/${courseId}/videos/${videoId}`);
+
+    await toast.promise(deletePromise, {
+      loading: "Deleting video...",
+      success: "Video deleted successfully!",
+      error: (err) => err.response?.data?.message || "Delete failed",
+    });
+
+    await fetchCourse();
   };
 
   if (loading)
@@ -238,7 +206,6 @@ const EditCourse = () => {
             {thumbnailPreview && (
               <img
                 src={thumbnailPreview}
-                alt="Thumbnail"
                 className="mt-3 h-32 w-full object-cover rounded"
               />
             )}
@@ -293,7 +260,7 @@ const EditCourse = () => {
                 <input
                   type="file"
                   accept="video/*"
-                  className="hidden"
+                  hidden
                   onChange={(e) => replaceVideo(v._id, e.target.files[0])}
                 />
               </label>

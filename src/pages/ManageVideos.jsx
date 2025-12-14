@@ -27,14 +27,15 @@ const ManageVideos = () => {
     fetchCourse();
   }, [courseId]);
 
+  // Delete video
   const deleteVideo = (videoId) => {
     const toastId = toast(
-      <div className="bg-white p-4 rounded shadow flex flex-col gap-3">
+      <div className="bg-white p-4 shadow flex flex-col gap-3">
         <p className="font-medium">Delete this video?</p>
 
         <div className="flex justify-end gap-2">
           <button
-            className="px-3 py-1 rounded"
+            className="px-3 py-1 rounded text-black bg-slate-400"
             onClick={() => toast.dismiss(toastId)}
           >
             Cancel
@@ -65,6 +66,7 @@ const ManageVideos = () => {
     );
   };
 
+  // Replace video
   const replaceVideo = async (videoId, file) => {
     if (!file || replacingVideoId) return;
 
@@ -73,17 +75,18 @@ const ManageVideos = () => {
     const formData = new FormData();
     formData.append("videos", file);
 
-    await toast.promise(
-      api
-        .put(`/course/${courseId}/videos/${videoId}/replace`, formData)
-        .then(fetchCourse),
-      {
-        loading: "Replacing video...",
-        success: "Video replaced",
-        error: "Replace failed",
-      }
+    const replacePromise = api.put(
+      `/course/${courseId}/videos/${videoId}/replace`,
+      formData
     );
 
+    await toast.promise(replacePromise, {
+      loading: "Replacing video...",
+      success: "Video replaced",
+      error: "Replace failed",
+    });
+
+    await fetchCourse();
     setReplacingVideoId(null);
   };
 
