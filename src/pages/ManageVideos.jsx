@@ -34,7 +34,9 @@ const ManageVideos = () => {
       (t) => (
         <DeleteConfirmationToast
           t={t}
-          message="Delete this video?"
+          message="Delete this video? This action cannot be undone."
+          confirmText="Delete"
+          cancelText="Cancel"
           onConfirm={async () => {
             try {
               await toast.promise(
@@ -51,20 +53,25 @@ const ManageVideos = () => {
                     err.response?.data?.message || "Failed to delete video",
                 },
                 {
-                  success: { duration: 2000 },
-                  error: { duration: 3000 },
+                  success: { duration: 3000 }, // normal auto-dismiss for success
+                  error: { duration: 4000 },
+                  loading: { duration: Infinity },
                 }
               );
             } catch (error) {
+              // This catch is redundant because toast.promise handles errors
+              // But kept for safety
               toast.error(error?.response?.data?.message || "Delete failed");
             }
           }}
         />
       ),
-      { duration: 3000 }
+      {
+        duration: Infinity, // ← Critical: Keep open until user interacts
+        // position: 'top-center', // optional: better for modals
+      }
     );
   };
-
   const replaceVideo = async (videoId, file) => {
     if (!file) return;
 
