@@ -5,7 +5,7 @@ import editCourseSchema from "../schema/editCourseSchema";
 import api from "../api/api";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
-import DeleteVideoToast from "../components/DeleteVideoToast";
+import DeleteConfirmationToast from "../components/DeleteConfirmationToast";
 
 const EditCourse = () => {
   const { courseId } = useParams();
@@ -97,25 +97,26 @@ const EditCourse = () => {
       }
     }
 
-    // FIX 1: Chain the asynchronous parts (fetchCourse and navigation)
-    // before the final resolution of the promise.
-    const updatePromise = api
-      .put(`/course/${courseId}`, formData)
-      .then(async (res) => {
-        await fetchCourse();
-        // Use setTimeout to ensure the toast has time to display before navigating away
-        setTimeout(() => navigate("/i/courses"), 600);
-        return res; // Resolve the promise after async tasks are done
-      });
-
-    await toast.promise(updatePromise, {
-      loading: "Saving changes...",
-      // FIX 2: success is now a simple string.
-      success: "Course updated successfully!",
-      error: (err) => err.response?.data?.message || "Update failed",
-    });
-
-    setSaving(false);
+    try {
+      await toast.promise(
+        api.put(`/course/${courseId}`, formData).then(async (res) => {
+          await fetchCourse();
+          return res;
+        }),
+        {
+          loading: "Saving changes...",
+          success: (res) => {
+            setTimeout(() => navigate("/i/courses"), 1500);
+            return "Course updated successfully!";
+          },
+          error: (err) => err.response?.data?.message || "Update failed",
+        }
+      );
+    } catch (error) {
+      // Error handled by toast.promise
+    } finally {
+      setSaving(false);
+    }
   };
 
   const replaceVideo = async (videoId, file) => {
@@ -124,45 +125,55 @@ const EditCourse = () => {
     const formData = new FormData();
     formData.append("videos", file);
 
-    // FIX 3: Chain fetchCourse to run before the promise resolves.
-    const replaceAndRefreshPromise = api
-      .put(`/course/${courseId}/videos/${videoId}/replace`, formData)
-      .then(async (res) => {
-        await fetchCourse();
-        return res;
-      });
-
-    await toast.promise(replaceAndRefreshPromise, {
-      loading: "Replacing video...",
-      // FIX 4: success is now a simple string.
-      success: "Video replaced successfully!",
-      error: (err) => err.response?.data?.message || "Replace failed",
-    });
+    try {
+      await toast.promise(
+        api
+          .put(`/course/${courseId}/videos/${videoId}/replace`, formData)
+          .then(async (res) => {
+            await fetchCourse();
+            return res;
+          }),
+        {
+          loading: "Replacing video...",
+          success: "Video replaced successfully!",
+          error: (err) => err.response?.data?.message || "Replace failed",
+        }
+      );
+    } catch (error) {
+      // Error handled by toast.promise
+    }
   };
 
   const deleteVideo = (videoId) => {
-    toast.custom((t) => (
-      <DeleteVideoToast
-        t={t}
-        message="Delete this video?"
-        onConfirm={async () => {
-          // FIX 5: Chain fetchCourse to run before the promise resolves.
-          const deleteAndRefreshPromise = api
-            .delete(`/course/${courseId}/videos/${videoId}`)
-            .then(async (res) => {
-              await fetchCourse();
-              return res;
-            });
-
-          await toast.promise(deleteAndRefreshPromise, {
-            loading: "Deleting video...",
-            // FIX 6: success is now a simple string.
-            success: "Video deleted successfully!",
-            error: (err) => err.response?.data?.message || "Delete failed",
-          });
-        }}
-      />
-    ));
+    toast.custom(
+      (t) => (
+        <DeleteConfirmationToast
+          t={t}
+          message="Delete this video?"
+          onConfirm={async () => {
+            try {
+              await toast.promise(
+                api
+                  .delete(`/course/${courseId}/videos/${videoId}`)
+                  .then(async (res) => {
+                    await fetchCourse();
+                    return res;
+                  }),
+                {
+                  loading: "Deleting video...",
+                  success: "Video deleted successfully!",
+                  error: (err) =>
+                    err.response?.data?.message || "Delete failed",
+                }
+              );
+            } catch (error) {
+              // Error handled by toast.promise
+            }
+          }}
+        />
+      ),
+      { duration: 3000 }
+    );
   };
 
   if (loading)

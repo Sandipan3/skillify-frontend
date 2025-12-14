@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../api/api";
 import toast from "react-hot-toast";
-import DeleteVideoToast from "../components/DeleteVideoToast";
+import DeleteConfirmationToast from "../components/DeleteConfirmationToast";
 
 const ManageVideos = () => {
   const { courseId } = useParams();
@@ -11,7 +11,6 @@ const ManageVideos = () => {
   const [course, setCourse] = useState({ videos: [] });
   const [replacingVideoId, setReplacingVideoId] = useState(null);
 
-  // Fetch course
   const fetchCourse = async () => {
     setLoading(true);
     try {
@@ -30,34 +29,38 @@ const ManageVideos = () => {
     fetchCourse();
   }, [courseId]);
 
-  // Delete video
   const deleteVideo = (videoId) => {
-    toast.custom((t) => (
-      <DeleteVideoToast
-        t={t}
-        message="Delete this video?"
-        onConfirm={async () => {
-          // FIX: Chain the delete API call and the fetchCourse refresh.
-          const deleteAndRefreshPromise = api
-            .delete(`/course/${courseId}/videos/${videoId}`)
-            .then(async (res) => {
-              await fetchCourse();
-              return res; // Resolve the promise chain
-            });
-
-          await toast.promise(deleteAndRefreshPromise, {
-            loading: "Deleting video...",
-            // FIX: success is now a simple string for auto-dismissal.
-            success: "Video deleted successfully!",
-            error: (err) =>
-              err.response?.data?.message || "Failed to delete video",
-          });
-        }}
-      />
-    ));
+    toast.custom(
+      (t) => (
+        <DeleteConfirmationToast
+          t={t}
+          message="Delete this video?"
+          onConfirm={async () => {
+            try {
+              await toast.promise(
+                api
+                  .delete(`/course/${courseId}/videos/${videoId}`)
+                  .then(async (res) => {
+                    await fetchCourse();
+                    return res;
+                  }),
+                {
+                  loading: "Deleting video...",
+                  success: "Video deleted successfully!",
+                  error: (err) =>
+                    err.response?.data?.message || "Failed to delete video",
+                }
+              );
+            } catch (error) {
+              // Error handled by toast.promise
+            }
+          }}
+        />
+      ),
+      { duration: 3000 }
+    );
   };
 
-  // Replace video
   const replaceVideo = async (videoId, file) => {
     if (!file) return;
 
@@ -66,22 +69,26 @@ const ManageVideos = () => {
     const formData = new FormData();
     formData.append("videos", file);
 
-    // FIX: Chain the replace API call and the fetchCourse refresh.
-    const replaceAndRefreshPromise = api
-      .put(`/course/${courseId}/videos/${videoId}/replace`, formData)
-      .then(async (res) => {
-        await fetchCourse();
-        return res; // Resolve the promise chain
-      });
-
-    await toast.promise(replaceAndRefreshPromise, {
-      loading: "Replacing video...",
-      // FIX: success is now a simple string for auto-dismissal.
-      success: "Video replaced successfully!",
-      error: (err) => err.response?.data?.message || "Failed to replace video",
-    });
-
-    setReplacingVideoId(null);
+    try {
+      await toast.promise(
+        api
+          .put(`/course/${courseId}/videos/${videoId}/replace`, formData)
+          .then(async (res) => {
+            await fetchCourse();
+            return res;
+          }),
+        {
+          loading: "Replacing video...",
+          success: "Video replaced successfully!",
+          error: (err) =>
+            err.response?.data?.message || "Failed to replace video",
+        }
+      );
+    } catch (error) {
+      // Error handled by toast.promise
+    } finally {
+      setReplacingVideoId(null);
+    }
   };
 
   if (loading) return <p className="p-6">Loading...</p>;
