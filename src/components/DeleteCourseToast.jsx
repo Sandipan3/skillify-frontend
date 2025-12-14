@@ -9,9 +9,9 @@ const DeleteCourseToast = ({ message, onConfirm, t }) => {
       <div className="flex gap-2 justify-end">
         <button
           className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-          onClick={() => {
+          onClick={async () => {
             toast.dismiss(t.id);
-            onConfirm();
+            await onConfirm();
           }}
         >
           Delete
