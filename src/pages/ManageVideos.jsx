@@ -52,7 +52,7 @@ const ManageVideos = () => {
                 }
               );
             } catch (error) {
-              // Error handled by toast.promise
+              toast.error(error?.response?.data?.message || "Delete failed");
             }
           }}
         />
@@ -85,7 +85,7 @@ const ManageVideos = () => {
         }
       );
     } catch (error) {
-      // Error handled by toast.promise
+      toast.error(error?.response?.data?.message || "Failed to replace video");
     } finally {
       setReplacingVideoId(null);
     }

@@ -113,7 +113,7 @@ const EditCourse = () => {
         }
       );
     } catch (error) {
-      // Error handled by toast.promise
+      toast.error(error?.response?.data?.message || "Update failed");
     } finally {
       setSaving(false);
     }
@@ -140,7 +140,7 @@ const EditCourse = () => {
         }
       );
     } catch (error) {
-      // Error handled by toast.promise
+      toast.error(error?.response?.data?.message || "Replace failed");
     }
   };
 
@@ -167,7 +167,7 @@ const EditCourse = () => {
                 }
               );
             } catch (error) {
-              // Error handled by toast.promise
+              toast.error(error?.response?.data?.message || "Delete failed");
             }
           }}
         />

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import api from "../api/api";
 import CourseCard from "../components/CourseCard";
 import toast from "react-hot-toast";
-import DeleteCourseToast from "../components/DeleteCourseToast";
+import DeleteConfirmationToast from "../components/DeleteConfirmationToast";
 
 const InstructorCourses = () => {
   const [courses, setCourses] = useState([]);
@@ -47,19 +47,29 @@ const InstructorCourses = () => {
     fetchCourses(page);
   }, [page]);
 
-  // Delete course using toast
-  const deleteCourse = async (courseId) => {
-    try {
-      await toast.promise(api.delete(`/course/${courseId}`), {
-        loading: "Deleting course...",
-        success: "Course deleted successfully!",
-        error: (err) => err?.response?.data?.message || "Delete failed",
-      });
-
-      fetchCourses(page);
-    } catch (error) {
-      toast.error(error?.response?.data?.message || "Delete failed");
-    }
+  // Delete course using confirmation toast
+  const deleteCourse = (courseId) => {
+    toast.custom(
+      (t) => (
+        <DeleteConfirmationToast
+          t={t}
+          message="Delete this course and all its content?"
+          onConfirm={async () => {
+            try {
+              await toast.promise(api.delete(`/course/${courseId}`), {
+                loading: "Deleting course...",
+                success: "Course deleted successfully!",
+                error: (err) => err?.response?.data?.message || "Delete failed",
+              });
+              fetchCourses(page);
+            } catch (error) {
+              toast.error(error?.response?.data?.message || "Delete failed");
+            }
+          }}
+        />
+      ),
+      { duration: 3000 }
+    );
   };
 
   return (
@@ -69,21 +79,17 @@ const InstructorCourses = () => {
       {loading && <p>Loading...</p>}
       {!loading && courses.length === 0 && <p>No courses found.</p>}
 
-      {/* Responsive Grid:
-          Mobile/Tablets → 1 column
-          Desktop → 3 columns */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {!loading &&
           courses.map((course) => (
             <CourseCard
               key={course._id}
               course={course}
-              onDelete={deleteCourse}
+              onDelete={() => deleteCourse(course._id)}
             />
           ))}
       </div>
 
-      {/* PAGINATION CONTROLS */}
       <div className="mt-8 flex justify-center items-center gap-3">
         <button
           disabled={page === 1}
