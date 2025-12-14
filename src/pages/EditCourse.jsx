@@ -106,6 +106,7 @@ const EditCourse = () => {
       });
 
       toast.success("Course updated successfully!");
+      await fetchCourse();
 
       // tiny delay so user sees success message
       setTimeout(() => navigate("/i/courses"), 600);
