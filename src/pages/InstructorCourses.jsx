@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import api from "../api/api";
 import CourseCard from "../components/CourseCard";
 import toast from "react-hot-toast";
-import DeleteConfirmationToast from "../components/DeleteConfirmationToast";
 
 const InstructorCourses = () => {
   const [courses, setCourses] = useState([]);
@@ -13,7 +12,6 @@ const InstructorCourses = () => {
 
   const fetchCourses = async (pageNumber = 1) => {
     setLoading(true);
-
     try {
       const res = await api.get(`/course/my-courses?page=${pageNumber}`);
 
@@ -46,23 +44,39 @@ const InstructorCourses = () => {
   }, [page]);
 
   const deleteCourse = (courseId) => {
-    toast.custom((t) => (
-      <DeleteConfirmationToast
-        t={t}
-        message="Delete this course and all its content?"
-        onConfirm={async () => {
-          const deletePromise = api.delete(`/course/${courseId}`);
+    const toastId = toast(
+      <div className="bg-white p-4 shadow flex flex-col gap-3">
+        <p className="font-medium">Delete this course and all its content?</p>
 
-          await toast.promise(deletePromise, {
-            loading: "Deleting course...",
-            success: "Course deleted successfully!",
-            error: (err) => err?.response?.data?.message || "Delete failed",
-          });
+        <div className="flex justify-end gap-2">
+          <button
+            className="px-3 py-1 bg-gray-300 rounded"
+            onClick={() => toast.dismiss(toastId)}
+          >
+            Cancel
+          </button>
 
-          await fetchCourses(page);
-        }}
-      />
-    ));
+          <button
+            className="px-3 py-1 bg-red-500 text-white rounded"
+            onClick={async () => {
+              toast.dismiss(toastId);
+
+              const deletePromise = api.delete(`/course/${courseId}`);
+
+              await toast.promise(deletePromise, {
+                loading: "Deleting course...",
+                success: "Course deleted successfully!",
+                error: (err) => err?.response?.data?.message || "Delete failed",
+              });
+
+              await fetchCourses(page);
+            }}
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    );
   };
 
   return (
