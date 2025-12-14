@@ -7,20 +7,21 @@ import deleteVideoToast from "../components/deleteVideoToast";
 const ManageVideos = () => {
   const { courseId } = useParams();
 
+  // Initialize with safe defaults
   const [loading, setLoading] = useState(true);
-  const [course, setCourse] = useState(null);
+  const [course, setCourse] = useState({ videos: [] });
   const [replacingVideoId, setReplacingVideoId] = useState(null);
 
-  // Fetch course (OWNER instructor only)
+  // Fetch course
   const fetchCourse = async () => {
     setLoading(true);
     try {
       const res = await api.get(`/course/${courseId}`);
-      // Backend returns the course directly inside data
-      setCourse(res.data.data);
+      // Backend guarantees
+      setCourse(res.data.data || { videos: [] });
     } catch (err) {
       toast.error("Failed to load course");
-      setCourse(null);
+      setCourse({ videos: [] });
     } finally {
       setLoading(false);
     }
@@ -66,17 +67,20 @@ const ManageVideos = () => {
   };
 
   if (loading) return <p className="p-6">Loading...</p>;
-  if (!course) return <p className="p-6 text-red-600">Course not found.</p>;
 
   return (
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Manage Videos</h1>
 
       <p className="mb-4 text-gray-600">
-        Course: <span className="font-semibold">{course.title}</span>
+        Course: <span className="font-semibold">{course.title || "—"}</span>
       </p>
 
       <div className="space-y-4">
+        {course.videos.length === 0 && (
+          <p className="text-gray-500">No videos uploaded yet.</p>
+        )}
+
         {course.videos.map((v) => (
           <div
             key={v._id}
