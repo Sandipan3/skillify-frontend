@@ -37,16 +37,17 @@ const ManageVideos = () => {
         t={t}
         message="Delete this video?"
         onConfirm={async () => {
-          const deletePromise = api.delete(
-            `/course/${courseId}/videos/${videoId}`
-          );
-
-          await toast.promise(deletePromise, {
-            loading: "Deleting video...",
-            success: async () => {
+          // This promise chain will be passed to toast.promise
+          const deleteAndRefreshPromise = api
+            .delete(`/course/${courseId}/videos/${videoId}`)
+            .then(async (res) => {
               await fetchCourse();
-              return "Video deleted successfully!";
-            },
+              return res;
+            });
+
+          await toast.promise(deleteAndRefreshPromise, {
+            loading: "Deleting video...",
+            success: "Video deleted successfully!",
             error: (err) =>
               err.response?.data?.message || "Failed to delete video",
           });
@@ -64,17 +65,17 @@ const ManageVideos = () => {
     const formData = new FormData();
     formData.append("videos", file);
 
-    const replacePromise = api.put(
-      `/course/${courseId}/videos/${videoId}/replace`,
-      formData
-    );
-
-    await toast.promise(replacePromise, {
-      loading: "Replacing video...",
-      success: async () => {
+    // Create a promise chain that includes the API call and the course refresh
+    const replaceAndRefreshPromise = api
+      .put(`/course/${courseId}/videos/${videoId}/replace`, formData)
+      .then(async (res) => {
         await fetchCourse();
-        return "Video replaced successfully!";
-      },
+        return res;
+      });
+
+    await toast.promise(replaceAndRefreshPromise, {
+      loading: "Replacing video...",
+      success: "Video replaced successfully!",
       error: (err) => err.response?.data?.message || "Failed to replace video",
     });
 
