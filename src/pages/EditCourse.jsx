@@ -42,7 +42,7 @@ const EditCourse = () => {
       setValue("title", c.title);
       setValue("description", c.description);
       setValue("price", c.price);
-      setValue("upiId", ""); // allow edit / overwrite
+      setValue("upiId", "");
       setValue("videos", []);
 
       setThumbnailPreview(c.thumbnail?.url || null);
@@ -58,63 +58,69 @@ const EditCourse = () => {
   }, [courseId]); // Thumbnail preview
 
   useEffect(() => {
-    let objectUrl;
-    if (thumbnailWatch?.length > 0) {
-      objectUrl = URL.createObjectURL(thumbnailWatch[0]);
-      setThumbnailPreview(objectUrl);
+    if (!thumbnailWatch?.length) {
+      setThumbnailPreview(null);
+      return;
     }
+    const file = thumbnailWatch[0];
+    const objectUrl = URL.createObjectURL(file);
+    setThumbnailPreview(objectUrl);
     return () => {
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      URL.revokeObjectURL(objectUrl);
     };
-  }, [thumbnailWatch]); // Video preview names
+  }, [thumbnailWatch]);
 
   useEffect(() => {
-    if (videosWatch?.length > 0) {
-      setVideoNames(Array.from(videosWatch).map((v) => v.name));
-    } else {
-      setVideoNames([]);
+    if (!videosWatch?.length) {
+      setVideoPreviewNames([]);
+      return;
     }
+    setVideoPreviewNames(Array.from(videosWatch, (file) => file.name));
   }, [videosWatch]); // Submit edit
 
   const onSubmit = async (data) => {
-    try {
-      setSaving(true);
+    setSaving(true);
 
-      const formData = new FormData();
-      formData.append("title", data.title);
-      formData.append("description", data.description);
-      formData.append("price", data.price ?? 0);
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("description", data.description);
+    formData.append("price", data.price ?? 0);
 
-      if (data.upiId) {
-        formData.append("upiId", data.upiId);
-      }
-
-      if (data.thumbnail?.length > 0) {
-        formData.append("thumbnail", data.thumbnail[0]);
-      }
-
-      if (data.videos?.length > 0) {
-        for (let file of data.videos) {
-          formData.append("videos", file);
-        }
-      }
-
-      await api.put(`/course/${courseId}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      toast.success("Course updated successfully!");
-      await fetchCourse();
-      setTimeout(() => navigate("/i/courses"), 600);
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Update failed");
-    } finally {
-      setSaving(false);
+    if (data.upiId) {
+      formData.append("upiId", data.upiId);
     }
-  }; // Replace video
+
+    if (data.thumbnail?.length > 0) {
+      formData.append("thumbnail", data.thumbnail[0]);
+    }
+
+    if (data.videos?.length > 0) {
+      for (let file of data.videos) {
+        formData.append("videos", file);
+      }
+    }
+
+    const updatePromise = api.put(`/course/${courseId}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    await toast.promise(updatePromise, {
+      loading: "Saving changes...",
+      success: async () => {
+        await fetchCourse();
+        setTimeout(() => navigate("/i/courses"), 600);
+        return "Course updated successfully!";
+      },
+      error: (err) => {
+        return err.response?.data?.message || "Update failed";
+      },
+    });
+
+    setSaving(false);
+  };
 
   const replaceVideo = async (videoId, file) => {
-    if (!file) return; // Use toast.promise for automatic loading/success/error handling
+    if (!file) return;
 
     const formData = new FormData();
     formData.append("videos", file);

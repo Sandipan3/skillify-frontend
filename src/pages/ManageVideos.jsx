@@ -17,7 +17,8 @@ const ManageVideos = () => {
     setLoading(true);
     try {
       const res = await api.get(`/course/${courseId}`);
-      setCourse(res.data.data || { videos: [] });
+      const c = res.data.data;
+      setCourse({ ...c, videos: c.videos || [] });
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to load course");
       setCourse({ videos: [] });

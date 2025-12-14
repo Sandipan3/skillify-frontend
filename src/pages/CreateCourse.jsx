@@ -28,18 +28,25 @@ const CreateCourse = () => {
 
   // Thumbnail preview
   useEffect(() => {
-    if (thumbnailWatch && thumbnailWatch.length > 0) {
-      setThumbnailPreview(URL.createObjectURL(thumbnailWatch[0]));
+    if (!thumbnailWatch?.length) {
+      setThumbnailPreview(null);
+      return;
     }
+    const file = thumbnailWatch[0];
+    const objectUrl = URL.createObjectURL(file);
+    setThumbnailPreview(objectUrl);
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
   }, [thumbnailWatch]);
 
   // Video names preview
   useEffect(() => {
-    if (videosWatch && videosWatch.length > 0) {
-      setVideoPreviewNames(Array.from(videosWatch).map((f) => f.name));
-    } else {
+    if (!videosWatch?.length) {
       setVideoPreviewNames([]);
+      return;
     }
+    setVideoPreviewNames(Array.from(videosWatch, (file) => file.name));
   }, [videosWatch]);
 
   // Submit form
@@ -75,7 +82,6 @@ const CreateCourse = () => {
 
       navigate("/i/courses");
     } catch (error) {
-      // This will rarely run, but safe to keep
       toast.error(error?.response?.data?.message || "Something went wrong");
     }
   };
