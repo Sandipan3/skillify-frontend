@@ -9,8 +9,8 @@ const DeleteConfirmationToast = ({
   cancelText = "Cancel",
 }) => {
   const handleConfirm = async () => {
-    toast.dismiss(t.id);
     await onConfirm();
+    toast.dismiss(t.id);
   };
 
   const handleCancel = () => {

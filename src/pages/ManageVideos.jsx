@@ -12,13 +12,12 @@ const ManageVideos = () => {
   const [replacingVideoId, setReplacingVideoId] = useState(null);
 
   const fetchCourse = async () => {
-    setLoading(true);
     try {
       const res = await api.get(`/course/${courseId}`);
       const c = res.data.data;
       setCourse({ ...c, videos: c.videos || [] });
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to load course");
+    } catch {
+      toast.error("Failed to load course");
       setCourse({ videos: [] });
     } finally {
       setLoading(false);
@@ -30,123 +29,73 @@ const ManageVideos = () => {
   }, [courseId]);
 
   const deleteVideo = (videoId) => {
-    toast(
-      <div className="flex flex-col gap-3">
-        <p className="font-medium">Delete this video?</p>
-        <p className="text-sm text-gray-600">This action cannot be undone.</p>
-        <div className="flex gap-2 justify-end mt-2">
-          <button
-            onClick={() => {
-              toast.dismiss(); // dismiss all current toasts (or target specific if multiple)
-
-              toast.promise(
-                api
-                  .delete(`/course/${courseId}/videos/${videoId}`)
-                  .then(async () => {
-                    await fetchCourse();
-                  }),
-                {
-                  loading: "Deleting video...",
-                  success: "Video deleted successfully!",
-                  error: (err) =>
-                    err.response?.data?.message || "Failed to delete video",
-                },
-                {
-                  success: { duration: 3000 },
-                  error: { duration: 4000 },
-                }
-              );
-            }}
-            className="bg-red-500 text-white px-3 py-1.5 rounded text-sm hover:bg-red-600"
-          >
-            Yes, Delete
-          </button>
-          <button
-            onClick={() => toast.dismiss()}
-            className="bg-gray-300 px-3 py-1.5 rounded text-sm hover:bg-gray-400"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>,
-      {
-        duration: Infinity,
-      }
-    );
+    toast((t) => (
+      <DeleteConfirmationToast
+        t={t}
+        message="Delete this video?"
+        onConfirm={async () => {
+          await toast.promise(
+            api
+              .delete(`/course/${courseId}/videos/${videoId}`)
+              .then(fetchCourse),
+            {
+              loading: "Deleting video...",
+              success: "Video deleted",
+              error: "Delete failed",
+            }
+          );
+        }}
+      />
+    ));
   };
+
   const replaceVideo = async (videoId, file) => {
-    if (!file) return;
+    if (!file || replacingVideoId) return;
 
     setReplacingVideoId(videoId);
 
     const formData = new FormData();
     formData.append("videos", file);
 
-    try {
-      await toast.promise(
-        api
-          .put(`/course/${courseId}/videos/${videoId}/replace`, formData)
-          .then(async (res) => {
-            await fetchCourse();
-            return res;
-          }),
-        {
-          loading: "Replacing video...",
-          success: "Video replaced successfully!",
-          error: (err) =>
-            err.response?.data?.message || "Failed to replace video",
-        },
-        {
-          success: { duration: 2000 },
-          error: { duration: 3000 },
-        }
-      );
-    } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to replace video");
-    } finally {
-      setReplacingVideoId(null);
-    }
+    await toast.promise(
+      api
+        .put(`/course/${courseId}/videos/${videoId}/replace`, formData)
+        .then(fetchCourse),
+      {
+        loading: "Replacing video...",
+        success: "Video replaced",
+        error: "Replace failed",
+      }
+    );
+
+    setReplacingVideoId(null);
   };
 
   if (loading) return <p className="p-6">Loading...</p>;
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Manage Videos</h1>
+      <h1 className="text-2xl font-bold mb-4">Manage Videos</h1>
 
-      <p className="mb-4 text-gray-600">
-        Course: <span className="font-semibold">{course.title || "—"}</span>
-      </p>
+      {course.videos.length === 0 && (
+        <p className="text-gray-500">No videos yet</p>
+      )}
 
-      <div className="space-y-4">
-        {course.videos.length === 0 && (
-          <p className="text-gray-500">No videos uploaded yet.</p>
-        )}
-
+      <div className="space-y-3">
         {course.videos.map((v) => (
           <div
             key={v._id}
-            className="bg-white shadow border p-4 rounded flex justify-between items-center"
+            className="border p-4 rounded flex justify-between items-center"
           >
-            <div>
-              <p className="font-semibold">{v.title}</p>
-              <a
-                href={v.url}
-                target="_blank"
-                rel="noreferrer"
-                className="text-blue-600 text-sm underline"
-              >
-                Watch Video
-              </a>
-            </div>
+            <p className="font-medium">{v.title}</p>
 
-            <div className="flex gap-3 items-center">
-              <label className="cursor-pointer bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700">
+            <div className="flex gap-2">
+              <label className="bg-blue-600 text-white px-3 py-1 rounded cursor-pointer">
                 {replacingVideoId === v._id ? "Replacing..." : "Replace"}
                 <input
                   type="file"
                   accept="video/*"
-                  className="hidden"
+                  hidden
                   disabled={replacingVideoId === v._id}
                   onChange={(e) => replaceVideo(v._id, e.target.files[0])}
                 />
@@ -154,7 +103,7 @@ const ManageVideos = () => {
 
               <button
                 onClick={() => deleteVideo(v._id)}
-                className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
+                className="bg-red-500 text-white px-3 py-1 rounded"
               >
                 Delete
               </button>
