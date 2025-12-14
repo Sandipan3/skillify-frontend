@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import api from "../api/api";
 import toast from "react-hot-toast";
-import { useParams } from "react-router-dom";
 import deleteVideoToast from "../components/deleteVideoToast";
 
 const ManageVideos = () => {
@@ -9,24 +9,26 @@ const ManageVideos = () => {
 
   const [loading, setLoading] = useState(true);
   const [course, setCourse] = useState(null);
-
   const [replacingVideoId, setReplacingVideoId] = useState(null);
 
-  // Fetch course + videos
+  // Fetch course (OWNER instructor only)
   const fetchCourse = async () => {
     setLoading(true);
     try {
       const res = await api.get(`/course/${courseId}`);
-      setCourse(res.data.data.course);
+      // Backend returns the course directly inside data
+      setCourse(res.data.data);
     } catch (err) {
       toast.error("Failed to load course");
+      setCourse(null);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
     fetchCourse();
-  }, []);
+  }, [courseId]);
 
   // Delete video
   const deleteVideo = async (videoId) => {
@@ -36,7 +38,7 @@ const ManageVideos = () => {
         toast.success("Video deleted");
         fetchCourse();
       } catch {
-        toast.error("Failed to delete");
+        toast.error("Failed to delete video");
       }
     });
   };
@@ -56,8 +58,8 @@ const ManageVideos = () => {
 
       toast.success("Video replaced!");
       fetchCourse();
-    } catch (err) {
-      toast.error("Failed to replace");
+    } catch {
+      toast.error("Failed to replace video");
     } finally {
       setReplacingVideoId(null);
     }
@@ -74,7 +76,6 @@ const ManageVideos = () => {
         Course: <span className="font-semibold">{course.title}</span>
       </p>
 
-      {/* VIDEOS LIST */}
       <div className="space-y-4">
         {course.videos.map((v) => (
           <div
@@ -94,19 +95,17 @@ const ManageVideos = () => {
             </div>
 
             <div className="flex gap-3 items-center">
-              {/* Replace video */}
               <label className="cursor-pointer bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700">
                 {replacingVideoId === v._id ? "Replacing..." : "Replace"}
                 <input
                   type="file"
                   accept="video/*"
                   className="hidden"
-                  onChange={(e) => replaceVideo(v._id, e.target.files[0])}
                   disabled={replacingVideoId === v._id}
+                  onChange={(e) => replaceVideo(v._id, e.target.files[0])}
                 />
               </label>
 
-              {/* Delete video */}
               <button
                 onClick={() => deleteVideo(v._id)}
                 className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
