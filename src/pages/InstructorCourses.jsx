@@ -56,7 +56,7 @@ const InstructorCourses = () => {
         error: (err) => err?.response?.data?.message || "Delete failed",
       });
 
-      navigate("/i/courses");
+      fetchCourses(page);
     } catch (error) {
       toast.error(error?.response?.data?.message || "Delete failed");
     }

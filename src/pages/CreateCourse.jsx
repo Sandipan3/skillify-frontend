@@ -110,7 +110,7 @@ const CreateCourse = () => {
             {...register("description")}
             rows={5}
             className="w-full p-3 border rounded-lg"
-            placeholder="Course description"
+            placeholder="Course description 10 characters minimum"
             disabled={isSubmitting}
           />
           {errors.description && (
