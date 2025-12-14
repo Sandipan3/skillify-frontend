@@ -3,10 +3,10 @@ import toast from "react-hot-toast";
 
 const DeleteVideoToast = ({ message = "Delete this video?", onConfirm, t }) => {
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 bg-white">
       <p className="font-medium">{message}</p>
 
-      <div className="flex gap-2 justify-end">
+      <div className="flex gap-2 justify-end bg-white">
         <button
           className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
           onClick={async () => {
