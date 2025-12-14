@@ -1,24 +1,19 @@
-import React from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "../slice/authSlice";
 
-const LandingPage = () => {
-  const navigate = useNavigate();
+const Landing = () => {
+  const user = useSelector(selectCurrentUser);
 
-  const handleClick = () => {
-    navigate("/register");
-  };
+  if (user?.role === "admin") return <Navigate to="/a" />;
+  if (user?.role === "instructor") return <Navigate to="/i" />;
+  if (user?.role === "student") return <Navigate to="/s" />;
+  if (user?.role === "user") return <Navigate to="/u" />;
 
   return (
     <div>
-      <p>LandingPage</p>
-      <p>Welcome to Skillify</p>
-      <button onClick={handleClick}>Get Started</button>
-
-      <main>
-        <Outlet />
-      </main>
+      <h1>Skillify</h1>
+      <p>Learn. Teach. Grow.</p>
     </div>
   );
 };
-
-export default LandingPage;

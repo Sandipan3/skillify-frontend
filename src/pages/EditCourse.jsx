@@ -118,7 +118,6 @@ const EditCourse = () => {
   };
 
   // Delete a single video
-
   const deleteVideo = async (videoId) => {
     if (!videoId) {
       toast.error("Invalid video ID");
