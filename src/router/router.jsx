@@ -22,7 +22,7 @@ const router = createBrowserRouter([
     path: "/",
     children: [
       // PUBLIC ROUTES
-      { index: true, element: <Landing /> },
+      { index: true, element: <LandingPage /> },
       { path: "login", element: <Login /> },
       { path: "register", element: <Register /> },
       { path: "unauthorized", element: <Unauthorized /> },

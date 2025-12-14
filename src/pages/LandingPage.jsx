@@ -2,7 +2,7 @@ import { Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "../slice/authSlice";
 
-const Landing = () => {
+const LandingPage = () => {
   const user = useSelector(selectCurrentUser);
 
   if (user?.role === "admin") return <Navigate to="/a" />;
@@ -17,3 +17,5 @@ const Landing = () => {
     </div>
   );
 };
+
+export default LandingPage;
