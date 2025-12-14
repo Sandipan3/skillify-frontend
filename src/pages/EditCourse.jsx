@@ -142,7 +142,6 @@ const EditCourse = () => {
 
   const deleteVideo = async (videoId) => {
     DeleteVideoToast(async () => {
-      // Use toast.promise for automatic loading/success/error handling
       const deletePromise = api.delete(`/course/${courseId}/videos/${videoId}`);
 
       await toast.promise(deletePromise, {
@@ -275,7 +274,7 @@ const EditCourse = () => {
                 </a>
               </div>
               <div className="flex gap-2">
-                <label className="cursor-pointer bg-blue-600 text-white px-4 py-1 rounded">
+                <label className="cursor-pointer bg-blue-600 text-white px-3 py-1 rounded  flex items-center">
                   Replace
                   <input
                     type="file"

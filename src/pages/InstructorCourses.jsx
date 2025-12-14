@@ -48,22 +48,18 @@ const InstructorCourses = () => {
   }, [page]);
 
   // Delete course using toast
-  const deleteCourse = (id) => {
-    toast((t) => (
-      <DeleteCourseToast
-        t={t}
-        message="Are you sure you want to delete this course?"
-        onConfirm={async () => {
-          try {
-            await api.delete(`/course/${id}`);
-            toast.success("Course deleted");
-            fetchCourses(page);
-          } catch {
-            toast.error("Failed to delete");
-          }
-        }}
-      />
-    ));
+  const deleteCourse = async (courseId) => {
+    try {
+      await toast.promise(api.delete(`/course/${courseId}`), {
+        loading: "Deleting course...",
+        success: "Course deleted successfully!",
+        error: (err) => err?.response?.data?.message || "Delete failed",
+      });
+
+      navigate("/i/courses");
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Delete failed");
+    }
   };
 
   return (

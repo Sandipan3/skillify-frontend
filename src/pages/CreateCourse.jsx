@@ -61,14 +61,22 @@ const CreateCourse = () => {
         formData.append("videos", data.videos[i]);
       }
 
-      await api.post("/course/create", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await toast.promise(
+        api.post("/course/create", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        }),
+        {
+          loading: "Creating course...",
+          success: "Course created successfully!",
+          error: (err) =>
+            err?.response?.data?.message || "Something went wrong",
+        }
+      );
 
-      toast.success("Course created successfully!");
       navigate("/i/courses");
     } catch (error) {
-      toast.error(error.response?.data?.message || "Something went wrong");
+      // This will rarely run, but safe to keep
+      toast.error(error?.response?.data?.message || "Something went wrong");
     }
   };
 
