@@ -13,7 +13,7 @@ const EditCourse = () => {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [course, setCourse] = useState(null);
+  const [course, setCourse] = useState({ videos: [] });
 
   // previews
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
@@ -37,9 +37,9 @@ const EditCourse = () => {
     setLoading(true);
     try {
       const res = await api.get(`/course/${courseId}`);
-      const c = res.data.data.course;
+      const c = res.data.data;
 
-      setCourse(c);
+      setCourse({ ...c, videos: c.videos || [] });
 
       // Fill form with existing values
       setValue("title", c.title);
@@ -258,7 +258,7 @@ const EditCourse = () => {
         <h2 className="text-xl font-semibold mb-3">Existing Videos</h2>
 
         <div className="space-y-4">
-          {course.videos.map((v) => (
+          {course.videos?.map((v) => (
             <div
               key={v._id}
               className="bg-gray-100 p-4 rounded flex justify-between items-center"
@@ -315,13 +315,7 @@ const EditCourse = () => {
 
                 {/* Delete video */}
                 <button
-                  onClick={() =>
-                    deleteVideoToast(async () => {
-                      await api.delete(`/course/${courseId}/videos/${v._id}`);
-                      toast.success("Video deleted");
-                      fetchCourse();
-                    })
-                  }
+                  onClick={() => deleteVideo(v._id)}
                   className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
                 >
                   Delete
