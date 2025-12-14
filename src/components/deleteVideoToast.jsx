@@ -1,6 +1,6 @@
 import toast from "react-hot-toast";
 
-const deleteVideoToast = (onConfirm) => {
+const DeleteVideoToast = (onConfirm) => {
   toast((t) => (
     <div className="flex flex-col gap-3">
       <p className="font-medium">Delete this video?</p>
@@ -27,4 +27,4 @@ const deleteVideoToast = (onConfirm) => {
   ));
 };
 
-export default deleteVideoToast;
+export default DeleteVideoToast;

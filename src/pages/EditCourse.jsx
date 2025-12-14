@@ -5,7 +5,7 @@ import editCourseSchema from "../schema/editCourseSchema";
 import api from "../api/api";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
-import deleteVideoToast from "../components/deleteVideoToast";
+import DeleteVideoToast from "../components/DeleteVideoToast";
 
 const EditCourse = () => {
   const { courseId } = useParams();
@@ -47,8 +47,8 @@ const EditCourse = () => {
       setValue("price", c.price);
       setValue("videos", []);
       setThumbnailPreview(c.thumbnail?.url || null);
-    } catch (err) {
-      toast.error("Failed to load course");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to load course");
     } finally {
       setLoading(false);
     }
@@ -62,8 +62,7 @@ const EditCourse = () => {
   useEffect(() => {
     let objectUrl;
     if (thumbnailWatch?.length > 0) {
-      const file = thumbnailWatch[0];
-      objectUrl = URL.createObjectURL(file);
+      objectUrl = URL.createObjectURL(thumbnailWatch[0]);
       setThumbnailPreview(objectUrl);
     }
     return () => {
@@ -74,8 +73,7 @@ const EditCourse = () => {
   // Video preview names
   useEffect(() => {
     if (videosWatch?.length > 0) {
-      const arr = Array.from(videosWatch);
-      setVideoNames(arr.map((v) => v.name));
+      setVideoNames(Array.from(videosWatch).map((v) => v.name));
     } else {
       setVideoNames([]);
     }
@@ -108,38 +106,60 @@ const EditCourse = () => {
       toast.success("Course updated successfully!");
       await fetchCourse();
 
-      // tiny delay so user sees success message
       setTimeout(() => navigate("/i/courses"), 600);
-    } catch (err) {
-      toast.error("Update failed");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Update failed");
     } finally {
       setSaving(false);
     }
   };
 
-  // Delete a single video
+  // Replace video
+  const replaceVideo = async (videoId, file) => {
+    if (!file) return;
+
+    const toastId = toast.loading("Replacing video...");
+    try {
+      const formData = new FormData();
+      formData.append("videos", file);
+
+      await api.put(`/course/${courseId}/videos/${videoId}/replace`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      toast.dismiss(toastId);
+      toast.success("Video replaced!");
+      fetchCourse();
+    } catch (error) {
+      toast.dismiss(toastId);
+      toast.error(error.response?.data?.message || "Replace failed");
+    }
+  };
+
+  // Delete video
   const deleteVideo = async (videoId) => {
     if (!videoId) {
       toast.error("Invalid video ID");
       return;
     }
 
-    deleteVideoToast(async () => {
+    DeleteVideoToast(async () => {
+      const toastId = toast.loading("Deleting video...");
       try {
         await api.delete(`/course/${courseId}/videos/${videoId}`);
+        toast.dismiss(toastId);
         toast.success("Video deleted");
         fetchCourse();
-      } catch {
-        toast.error("Failed to delete video");
+      } catch (error) {
+        toast.dismiss(toastId);
+        toast.error(error.response?.data?.message || "Failed to delete video");
       }
     });
   };
 
-  // Show loading page
   if (loading)
     return <p className="p-6 text-xl font-semibold text-center">Loading...</p>;
 
-  // Show saving page
   if (saving)
     return (
       <p className="p-6 text-xl font-semibold text-center">
@@ -156,7 +176,6 @@ const EditCourse = () => {
         onSubmit={handleSubmit(onSubmit)}
         className="bg-white p-6 rounded-lg shadow space-y-6"
       >
-        {/* Title */}
         <div>
           <label className="font-semibold">Course Title</label>
           <input
@@ -170,7 +189,6 @@ const EditCourse = () => {
           )}
         </div>
 
-        {/* Description */}
         <div>
           <label className="font-semibold">Description</label>
           <textarea
@@ -184,7 +202,6 @@ const EditCourse = () => {
           )}
         </div>
 
-        {/* Price */}
         <div>
           <label className="font-semibold">Price</label>
           <input
@@ -193,14 +210,9 @@ const EditCourse = () => {
             className="w-full mt-1 p-2 border rounded"
             disabled={saving}
           />
-          {errors.price && (
-            <p className="text-red-500 text-sm">{errors.price.message}</p>
-          )}
         </div>
 
-        {/* Grid: Thumbnail + Add Videos */}
         <div className="grid md:grid-cols-2 gap-6">
-          {/* Thumbnail */}
           <div>
             <label className="font-semibold">Thumbnail</label>
             <input
@@ -210,7 +222,6 @@ const EditCourse = () => {
               className="mt-2"
               disabled={saving}
             />
-
             {thumbnailPreview && (
               <img
                 src={thumbnailPreview}
@@ -220,7 +231,6 @@ const EditCourse = () => {
             )}
           </div>
 
-          {/* Add new videos */}
           <div>
             <label className="font-semibold">Add New Videos</label>
             <input
@@ -231,39 +241,36 @@ const EditCourse = () => {
               className="mt-2"
               disabled={saving}
             />
-
             {videoNames.length > 0 && (
-              <ul className="mt-2 text-sm text-gray-700">
-                {videoNames.map((name, idx) => (
-                  <li key={idx}>📹 {name}</li>
+              <ul className="mt-2 text-sm">
+                {videoNames.map((name, i) => (
+                  <li key={i}>📹 {name}</li>
                 ))}
               </ul>
             )}
           </div>
         </div>
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={saving}
-          className={`w-full text-white font-semibold py-3 rounded-lg transition 
-            ${saving ? "bg-gray-400" : "bg-amber-500 hover:bg-amber-600"}`}
+          className={`w-full text-white font-semibold py-3 rounded-lg 
+          ${saving ? "bg-gray-400" : "bg-amber-500 hover:bg-amber-600"}`}
         >
           {saving ? "Saving..." : "Save Changes"}
         </button>
       </form>
 
-      {/* EXISTING VIDEOS LIST */}
+      {/* EXISTING VIDEOS */}
       <div className="mt-10">
         <h2 className="text-xl font-semibold mb-3">Existing Videos</h2>
 
         <div className="space-y-4">
-          {course.videos?.map((v) => (
+          {course.videos.map((v) => (
             <div
               key={v._id}
-              className="bg-gray-100 p-4 rounded flex justify-between items-center"
+              className="bg-gray-100 p-4 rounded flex justify-between"
             >
-              {/* LEFT SIDE */}
               <div>
                 <p className="font-semibold">{v.title}</p>
                 <a
@@ -276,47 +283,20 @@ const EditCourse = () => {
                 </a>
               </div>
 
-              {/* RIGHT SIDE ACTIONS */}
-              <div className="flex gap-2 items-center">
-                {/* Replace video */}
-                <label className="cursor-pointer bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700">
+              <div className="flex gap-2">
+                <label className="cursor-pointer bg-blue-600 text-white px-4 py-1 rounded">
                   Replace
                   <input
                     type="file"
                     accept="video/*"
                     className="hidden"
-                    onChange={async (e) => {
-                      const file = e.target.files[0];
-                      if (!file) return;
-
-                      try {
-                        toast.loading("Replacing video...");
-                        const formData = new FormData();
-                        formData.append("videos", file);
-
-                        await api.put(
-                          `/course/${courseId}/videos/${v._id}/replace`,
-                          formData,
-                          {
-                            headers: { "Content-Type": "multipart/form-data" },
-                          }
-                        );
-
-                        toast.dismiss();
-                        toast.success("Video replaced!");
-                        fetchCourse();
-                      } catch {
-                        toast.dismiss();
-                        toast.error("Replace failed");
-                      }
-                    }}
+                    onChange={(e) => replaceVideo(v._id, e.target.files[0])}
                   />
                 </label>
 
-                {/* Delete video */}
                 <button
                   onClick={() => deleteVideo(v._id)}
-                  className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
+                  className="bg-red-500 text-white px-4 py-1 rounded"
                 >
                   Delete
                 </button>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../api/api";
 import toast from "react-hot-toast";
-import deleteVideoToast from "../components/deleteVideoToast";
+import DeleteVideoToast from "../components/DeleteVideoToast";
 
 const ManageVideos = () => {
   const { courseId } = useParams();
@@ -17,10 +17,9 @@ const ManageVideos = () => {
     setLoading(true);
     try {
       const res = await api.get(`/course/${courseId}`);
-      // Backend guarantees
       setCourse(res.data.data || { videos: [] });
-    } catch (err) {
-      toast.error("Failed to load course");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to load course");
       setCourse({ videos: [] });
     } finally {
       setLoading(false);
@@ -33,13 +32,16 @@ const ManageVideos = () => {
 
   // Delete video
   const deleteVideo = async (videoId) => {
-    deleteVideoToast(async () => {
+    DeleteVideoToast(async () => {
+      const toastId = toast.loading("Deleting video...");
       try {
         await api.delete(`/course/${courseId}/videos/${videoId}`);
+        toast.dismiss(toastId);
         toast.success("Video deleted");
         fetchCourse();
-      } catch {
-        toast.error("Failed to delete video");
+      } catch (error) {
+        toast.dismiss(toastId);
+        toast.error(error.response?.data?.message || "Failed to delete video");
       }
     });
   };
@@ -48,8 +50,10 @@ const ManageVideos = () => {
   const replaceVideo = async (videoId, file) => {
     if (!file) return;
 
+    const toastId = toast.loading("Replacing video...");
     try {
       setReplacingVideoId(videoId);
+
       const formData = new FormData();
       formData.append("videos", file);
 
@@ -57,10 +61,12 @@ const ManageVideos = () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
+      toast.dismiss(toastId);
       toast.success("Video replaced!");
       fetchCourse();
-    } catch {
-      toast.error("Failed to replace video");
+    } catch (error) {
+      toast.dismiss(toastId);
+      toast.error(error.response?.data?.message || "Failed to replace video");
     } finally {
       setReplacingVideoId(null);
     }
