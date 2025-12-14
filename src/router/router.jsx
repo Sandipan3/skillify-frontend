@@ -1,5 +1,4 @@
 import { createBrowserRouter } from "react-router-dom";
-import Landing from "../pages/Landing";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ProtectedRoute from "../components/ProtectedRoute";
@@ -16,6 +15,7 @@ import InstructorCourses from "../pages/InstructorCourses";
 import ManageVideos from "../pages/ManageVideos";
 import CourseStudents from "../pages/CourseStudents";
 import EditCourse from "../pages/EditCourse";
+import LandingPage from "../pages/LandingPage";
 
 const router = createBrowserRouter([
   {
