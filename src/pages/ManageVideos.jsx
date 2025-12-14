@@ -32,18 +32,18 @@ const ManageVideos = () => {
   }, [courseId]);
 
   // Delete video
-  const deleteVideo = async (videoId) => {
+  const deleteVideo = (videoId) => {
     DeleteVideoToast(async () => {
-      const toastId = toast.loading("Deleting video...");
-      try {
-        await api.delete(`/course/${courseId}/videos/${videoId}`);
-        toast.dismiss(toastId);
-        toast.success("Video deleted");
-        fetchCourse();
-      } catch (error) {
-        toast.dismiss(toastId);
-        toast.error(error.response?.data?.message || "Failed to delete video");
-      }
+      const deletePromise = api.delete(`/course/${courseId}/videos/${videoId}`);
+
+      await toast.promise(deletePromise, {
+        loading: "Deleting video...",
+        success: async () => {
+          await fetchCourse();
+          return "Video deleted successfully!";
+        },
+        error: (err) => err.response?.data?.message || "Failed to delete video",
+      });
     });
   };
 
@@ -51,26 +51,27 @@ const ManageVideos = () => {
   const replaceVideo = async (videoId, file) => {
     if (!file) return;
 
-    const toastId = toast.loading("Replacing video...");
-    try {
-      setReplacingVideoId(videoId);
+    setReplacingVideoId(videoId);
 
-      const formData = new FormData();
-      formData.append("videos", file);
+    const formData = new FormData();
+    formData.append("videos", file);
 
-      await api.put(`/course/${courseId}/videos/${videoId}/replace`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+    const replacePromise = api.put(
+      `/course/${courseId}/videos/${videoId}/replace`,
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
 
-      toast.dismiss(toastId);
-      toast.success("Video replaced!");
-      fetchCourse();
-    } catch (error) {
-      toast.dismiss(toastId);
-      toast.error(error.response?.data?.message || "Failed to replace video");
-    } finally {
-      setReplacingVideoId(null);
-    }
+    await toast.promise(replacePromise, {
+      loading: "Replacing video...",
+      success: async () => {
+        await fetchCourse();
+        return "Video replaced successfully!";
+      },
+      error: (err) => err.response?.data?.message || "Failed to replace video",
+    });
+
+    setReplacingVideoId(null);
   };
 
   if (loading) return <p className="p-6">Loading...</p>;

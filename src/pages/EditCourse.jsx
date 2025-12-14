@@ -13,10 +13,10 @@ const EditCourse = () => {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [course, setCourse] = useState({ videos: [] }); // previews
+  const [course, setCourse] = useState({ videos: [] });
 
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
-  const [videoNames, setVideoNames] = useState([]);
+  const [videoPreviewNames, setVideoPreviewNames] = useState([]);
 
   const {
     register,
@@ -29,15 +29,16 @@ const EditCourse = () => {
   });
 
   const thumbnailWatch = watch("thumbnail");
-  const videosWatch = watch("videos"); // Load course
+  const videosWatch = watch("videos");
 
+  // Fetch course
   const fetchCourse = async () => {
     setLoading(true);
     try {
       const res = await api.get(`/course/${courseId}`);
       const c = res.data.data;
 
-      setCourse({ ...c, videos: c.videos || [] }); // populate form
+      setCourse({ ...c, videos: c.videos || [] });
 
       setValue("title", c.title);
       setValue("description", c.description);
@@ -55,29 +56,33 @@ const EditCourse = () => {
 
   useEffect(() => {
     fetchCourse();
-  }, [courseId]); // Thumbnail preview
+  }, [courseId]);
 
+  // Thumbnail preview
   useEffect(() => {
     if (!thumbnailWatch?.length) {
       setThumbnailPreview(null);
       return;
     }
+
     const file = thumbnailWatch[0];
     const objectUrl = URL.createObjectURL(file);
     setThumbnailPreview(objectUrl);
-    return () => {
-      URL.revokeObjectURL(objectUrl);
-    };
+
+    return () => URL.revokeObjectURL(objectUrl);
   }, [thumbnailWatch]);
 
+  // Video name preview
   useEffect(() => {
     if (!videosWatch?.length) {
       setVideoPreviewNames([]);
       return;
     }
-    setVideoPreviewNames(Array.from(videosWatch, (file) => file.name));
-  }, [videosWatch]); // Submit edit
 
+    setVideoPreviewNames(Array.from(videosWatch, (file) => file.name));
+  }, [videosWatch]);
+
+  // Submit edit
   const onSubmit = async (data) => {
     setSaving(true);
 
@@ -86,23 +91,16 @@ const EditCourse = () => {
     formData.append("description", data.description);
     formData.append("price", data.price ?? 0);
 
-    if (data.upiId) {
-      formData.append("upiId", data.upiId);
-    }
+    if (data.upiId) formData.append("upiId", data.upiId);
+    if (data.thumbnail?.length) formData.append("thumbnail", data.thumbnail[0]);
 
-    if (data.thumbnail?.length > 0) {
-      formData.append("thumbnail", data.thumbnail[0]);
-    }
-
-    if (data.videos?.length > 0) {
-      for (let file of data.videos) {
+    if (data.videos?.length) {
+      for (const file of data.videos) {
         formData.append("videos", file);
       }
     }
 
-    const updatePromise = api.put(`/course/${courseId}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    const updatePromise = api.put(`/course/${courseId}`, formData);
 
     await toast.promise(updatePromise, {
       loading: "Saving changes...",
@@ -111,14 +109,13 @@ const EditCourse = () => {
         setTimeout(() => navigate("/i/courses"), 600);
         return "Course updated successfully!";
       },
-      error: (err) => {
-        return err.response?.data?.message || "Update failed";
-      },
+      error: (err) => err.response?.data?.message || "Update failed",
     });
 
     setSaving(false);
   };
 
+  // Replace video
   const replaceVideo = async (videoId, file) => {
     if (!file) return;
 
@@ -127,39 +124,31 @@ const EditCourse = () => {
 
     const replacePromise = api.put(
       `/course/${courseId}/videos/${videoId}/replace`,
-      formData,
-      {
-        headers: { "Content-Type": "multipart/form-data" },
-      }
+      formData
     );
 
     await toast.promise(replacePromise, {
       loading: "Replacing video...",
-      success: () => {
-        // Re-fetch course data on success
-        fetchCourse();
+      success: async () => {
+        await fetchCourse();
         return "Video replaced successfully!";
       },
-      error: (err) => {
-        return err.response?.data?.message || "Replace failed";
-      },
+      error: (err) => err.response?.data?.message || "Replace failed",
     });
-  }; // Delete video
+  };
 
-  const deleteVideo = async (videoId) => {
+  // Delete video
+  const deleteVideo = (videoId) => {
     DeleteVideoToast(async () => {
       const deletePromise = api.delete(`/course/${courseId}/videos/${videoId}`);
 
       await toast.promise(deletePromise, {
         loading: "Deleting video...",
-        success: () => {
-          // Re-fetch course data on success
-          fetchCourse();
+        success: async () => {
+          await fetchCourse();
           return "Video deleted successfully!";
         },
-        error: (err) => {
-          return err.response?.data?.message || "Delete failed";
-        },
+        error: (err) => err.response?.data?.message || "Delete failed",
       });
     });
   };
@@ -177,6 +166,7 @@ const EditCourse = () => {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Edit Course</h1>
+
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="bg-white p-6 rounded-lg shadow space-y-6"
@@ -191,6 +181,7 @@ const EditCourse = () => {
             <p className="text-red-500 text-sm">{errors.title.message}</p>
           )}
         </div>
+
         <div>
           <label className="font-semibold">Description</label>
           <textarea
@@ -199,6 +190,7 @@ const EditCourse = () => {
             className="w-full mt-1 p-2 border rounded"
           />
         </div>
+
         <div>
           <label className="font-semibold">Price</label>
           <input
@@ -207,7 +199,7 @@ const EditCourse = () => {
             className="w-full mt-1 p-2 border rounded"
           />
         </div>
-        {/* UPI ID */}
+
         <div>
           <label className="font-semibold">UPI ID</label>
           <input
@@ -217,6 +209,7 @@ const EditCourse = () => {
             className="w-full mt-1 p-2 border rounded"
           />
         </div>
+
         <div className="grid md:grid-cols-2 gap-6">
           <div>
             <label className="font-semibold">Thumbnail</label>
@@ -229,11 +222,12 @@ const EditCourse = () => {
             {thumbnailPreview && (
               <img
                 src={thumbnailPreview}
-                className="mt-3 h-32 w-full object-cover rounded"
                 alt="Thumbnail"
+                className="mt-3 h-32 w-full object-cover rounded"
               />
             )}
           </div>
+
           <div>
             <label className="font-semibold">Add New Videos</label>
             <input
@@ -243,15 +237,16 @@ const EditCourse = () => {
               {...register("videos")}
               className="mt-2"
             />
-            {videoNames.length > 0 && (
+            {videoPreviewNames.length > 0 && (
               <ul className="mt-2 text-sm">
-                {videoNames.map((name, i) => (
+                {videoPreviewNames.map((name, i) => (
                   <li key={i}>📹 {name}</li>
                 ))}
               </ul>
             )}
           </div>
         </div>
+
         <button
           type="submit"
           className="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-lg"
@@ -259,9 +254,11 @@ const EditCourse = () => {
           Save Changes
         </button>
       </form>
-      {/* Existing Videos */}
+
+      {/* Existing videos */}
       <div className="mt-10">
         <h2 className="text-xl font-semibold mb-3">Existing Videos</h2>
+
         <div className="space-y-4">
           {course.videos.map((v) => (
             <div
@@ -279,8 +276,9 @@ const EditCourse = () => {
                   Watch Video
                 </a>
               </div>
+
               <div className="flex gap-2">
-                <label className="cursor-pointer bg-blue-600 text-white px-3 py-1 rounded  flex items-center">
+                <label className="cursor-pointer bg-blue-600 text-white px-3 py-1 rounded">
                   Replace
                   <input
                     type="file"
@@ -289,6 +287,7 @@ const EditCourse = () => {
                     onChange={(e) => replaceVideo(v._id, e.target.files[0])}
                   />
                 </label>
+
                 <button
                   onClick={() => deleteVideo(v._id)}
                   className="bg-red-500 text-white px-4 py-1 rounded"
