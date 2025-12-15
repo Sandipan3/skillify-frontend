@@ -88,7 +88,7 @@ const InstructorNavbar = () => {
               animate="visible"
               exit={{ x: "100%" }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="md:hidden fixed top-0 right-0 h-full w-64 bg-amber-500 z-50 p-6 flex flex-col gap-6 mt-8"
+              className="md:hidden fixed top-0 right-0 h-full w-64 bg-amber-500 z-50 p-6 flex flex-col gap-6"
             >
               {navLinks.map((link) => (
                 <motion.li key={link.to} variants={itemVariants}>
