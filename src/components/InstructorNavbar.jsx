@@ -53,25 +53,26 @@ const InstructorNavbar = () => {
       <AnimatePresence>
         {mobileOpen && (
           <>
+            {/* Sidebar */}
             <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: "0%" }}
-              exit={{ x: "100%" }}
-              transition={{ duration: 0.3 }}
-              className="md:hidden fixed top-0 right-0 h-full w-50 bg-amber-500 z-50 p-6"
+              initial={{ x: "100%" }} // off-screen
+              animate={{ x: 0 }} // slide in
+              exit={{ x: "100%" }} // off-screen
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="md:hidden fixed top-0 right-0 h-full w-64 bg-amber-500 z-50 p-6"
             >
-              <div className="flex flex-col gap-6">
-                <div className="h-5"></div>
-                {navLinks.map((link, index) => (
+              <div className="flex flex-col gap-6 mt-8">
+                {navLinks.map((link) => (
                   <Link
-                    key={index}
+                    key={link.to}
                     to={link.to}
-                    className="hover:text-white"
                     onClick={() => setMobileOpen(false)}
+                    className="hover:text-white"
                   >
                     {link.label}
                   </Link>
                 ))}
+
                 <button
                   onClick={handleLogout}
                   className="hover:text-red-300 text-left"
@@ -81,8 +82,13 @@ const InstructorNavbar = () => {
               </div>
             </motion.div>
 
-            <div
-              className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.5 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 bg-black z-40 md:hidden"
               onClick={() => setMobileOpen(false)}
             />
           </>
