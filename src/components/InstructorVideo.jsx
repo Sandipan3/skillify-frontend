@@ -1,17 +1,24 @@
-import React from "react";
-import ReactPlayer from "react-player";
+import React, { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 const InstructorVideo = ({ video, replacing, onReplace, onDelete }) => {
-  return (
-    <div className="border rounded p-4 space-y-3">
-      {/* TOP ROW */}
-      <div className="grid grid-cols-5 items-center gap-4">
-        {/* Title */}
-        <p className="font-medium col-span-3 truncate">{video.title}</p>
+  const [open, setOpen] = useState(false);
 
-        {/* Replace */}
-        <div className="col-span-1 flex justify-center">
-          <label className="bg-blue-600 text-white px-3 py-1 rounded cursor-pointer text-sm">
+  return (
+    <div className="border rounded">
+      <div className="p-3 space-y-2">
+        {/* Title */}
+        <p
+          className="font-medium truncate cursor-pointer"
+          onClick={() => setOpen((prev) => !prev)}
+        >
+          {video.title}
+        </p>
+
+        {/* Buttons */}
+        <div className="flex gap-3 justify-between">
+          {/* Replace */}
+          <label className="px-3 py-1 text-sm rounded cursor-pointer bg-blue-600 text-white">
             {replacing ? "Replacing..." : "Replace"}
             <input
               type="file"
@@ -21,29 +28,39 @@ const InstructorVideo = ({ video, replacing, onReplace, onDelete }) => {
               onChange={(e) => onReplace(e.target.files[0])}
             />
           </label>
-        </div>
 
-        {/* Delete */}
-        <div className="col-span-1 flex justify-center">
+          {/* Delete */}
           <button
             onClick={onDelete}
-            className="bg-red-500 text-white px-3 py-1 rounded text-sm"
+            className="px-3 py-1 text-sm rounded bg-red-600 text-white"
           >
             Delete
+          </button>
+
+          {/* Toggle */}
+          <button
+            type="button"
+            onClick={() => setOpen((prev) => !prev)}
+            className="px-3 py-1 text-sm rounded border flex items-center gap-1"
+          >
+            {open ? <EyeOff size={16} /> : <Eye size={16} />}
+            <span>{open ? "Hide" : "Show"}</span>
           </button>
         </div>
       </div>
 
-      {/* VIDEO PLAYER */}
-      <div className="col-span-5 rounded overflow-hidden aspect-video bg-black">
-        <ReactPlayer
-          url={video.url}
-          controls
-          width="100%"
-          height="100%"
-          onContextMenu={(e) => e.preventDefault()}
-        />
-      </div>
+      {/* Video */}
+      {open && (
+        <div className="border-t p-3">
+          {video.url ? (
+            <div className="aspect-video bg-black">
+              <video src={video.url} controls className="w-full h-full" />
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500">No video available</p>
+          )}
+        </div>
+      )}
     </div>
   );
 };

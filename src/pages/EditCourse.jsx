@@ -5,6 +5,7 @@ import editCourseSchema from "../schema/editCourseSchema";
 import api from "../api/api";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
+import InstructorVideo from "../components/InstructorVideo";
 
 const EditCourse = () => {
   const { courseId } = useParams();
@@ -200,18 +201,21 @@ const EditCourse = () => {
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
-          <div>
+          {/* Thumbnail */}
+          <div className="flex flex-col gap-2">
             <label className="font-semibold">Thumbnail</label>
             <input type="file" accept="image/*" {...register("thumbnail")} />
+
             {thumbnailPreview && (
               <img
                 src={thumbnailPreview}
-                className="mt-3 h-32 w-full object-cover rounded"
+                className="mt-2 h-32 w-full object-cover rounded"
               />
             )}
           </div>
 
-          <div>
+          {/* Videos */}
+          <div className="flex flex-col gap-2">
             <label className="font-semibold">Add New Videos</label>
             <input
               type="file"
@@ -219,8 +223,9 @@ const EditCourse = () => {
               multiple
               {...register("videos")}
             />
+
             {videoPreviewNames.length > 0 && (
-              <ul className="mt-2 text-sm">
+              <ul className="mt-1 text-sm space-y-1">
                 {videoPreviewNames.map((name, i) => (
                   <li key={i}>📹 {name}</li>
                 ))}
@@ -237,43 +242,17 @@ const EditCourse = () => {
       <div className="mt-10">
         <h2 className="text-xl font-semibold mb-3">Existing Videos</h2>
 
-        {course.videos.map((v) => (
-          <div
-            key={v._id}
-            className="bg-gray-100 p-4 rounded flex justify-between"
-          >
-            <div>
-              <p className="font-semibold">{v.title}</p>
-              <a
-                href={v.url}
-                target="_blank"
-                rel="noreferrer"
-                className="text-blue-600 text-sm underline"
-              >
-                Watch Video
-              </a>
-            </div>
-
-            <div className="flex gap-2">
-              <label className="bg-blue-600 text-white px-3 py-1 rounded cursor-pointer">
-                Replace
-                <input
-                  type="file"
-                  accept="video/*"
-                  hidden
-                  onChange={(e) => replaceVideo(v._id, e.target.files[0])}
-                />
-              </label>
-
-              <button
-                onClick={() => deleteVideo(v._id)}
-                className="bg-red-500 text-white px-4 py-1 rounded"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
+        <div className="space-y-3">
+          {course.videos.map((video) => (
+            <InstructorVideo
+              key={video._id}
+              video={video}
+              replacing={false}
+              onReplace={(file) => replaceVideo(video._id, file)}
+              onDelete={() => deleteVideo(video._id)}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
