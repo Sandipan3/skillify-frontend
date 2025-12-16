@@ -151,6 +151,9 @@ const CreateCourse = () => {
             placeholder="example@upi"
             disabled={isSubmitting}
           />
+          {errors.upiId && (
+            <p className="text-red-500 text-sm">{errors.upiId.message}</p>
+          )}
         </div>
 
         {/* Thumbnail + Videos */}

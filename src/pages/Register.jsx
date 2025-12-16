@@ -29,24 +29,18 @@ const Register = () => {
 
   const onSubmit = async (data) => {
     try {
-      const res = await api.post("/register", data);
+      const registerPromise = api.post("/register", data);
 
-      toast.success(res.data.data.message || "Registration successful!");
+      const res = await toast.promise(registerPromise, {
+        loading: "Registering...",
+        success: "Registration successful!",
+        error: "Registration failed",
+      });
+
       reset();
       navigate("/login");
     } catch (error) {
-      const backendMessage = error.response?.data?.message;
-
-      // Map backend validation errors into field errors
-      if (backendMessage?.toLowerCase().includes("email")) {
-        setError("email", { message: backendMessage });
-      } else if (backendMessage?.toLowerCase().includes("password")) {
-        setError("password", { message: backendMessage });
-      } else if (backendMessage?.toLowerCase().includes("name")) {
-        setError("name", { message: backendMessage });
-      } else {
-        toast.error(backendMessage || "Registration failed");
-      }
+      toast.error(error.response?.data?.message || "Registration failed");
     }
   };
 

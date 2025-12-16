@@ -37,8 +37,7 @@ const EditCourse = () => {
       const res = await api.get(`/course/${courseId}`);
       const c = res.data.data;
 
-      setCourse({ ...c, videos: c.videos || [] });
-
+      setCourse({ ...c, videos: c.videos || [] }); // Set form values from fetched data
       setValue("title", c.title);
       setValue("description", c.description);
       setValue("price", c.price);
@@ -57,7 +56,7 @@ const EditCourse = () => {
 
   useEffect(() => {
     fetchCourse();
-  }, [courseId]);
+  }, [courseId]); // Thumbnail preview for new upload
 
   useEffect(() => {
     if (!thumbnailWatch?.length) return;
@@ -67,7 +66,7 @@ const EditCourse = () => {
     setThumbnailPreview(objectUrl);
 
     return () => URL.revokeObjectURL(objectUrl);
-  }, [thumbnailWatch]);
+  }, [thumbnailWatch]); // Video names preview for new uploads
 
   useEffect(() => {
     if (!videosWatch?.length) {
@@ -107,7 +106,7 @@ const EditCourse = () => {
       });
 
       await fetchCourse();
-      setTimeout(() => navigate("/i/courses"), 1500);
+      navigate("/i/courses");
     } finally {
       setSaving(false);
     }
@@ -158,62 +157,81 @@ const EditCourse = () => {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Edit Course</h1>
-
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="bg-white p-6 rounded-lg shadow space-y-6"
       >
+        {/* Title */}
         <div>
           <label className="font-semibold">Course Title</label>
           <input
             {...register("title")}
             className="w-full mt-1 p-2 border rounded"
+            disabled={saving}
           />
           {errors.title && (
             <p className="text-red-500 text-sm">{errors.title.message}</p>
           )}
         </div>
-
+        {/* Description */}
         <div>
           <label className="font-semibold">Description</label>
           <textarea
             rows={5}
             {...register("description")}
             className="w-full mt-1 p-2 border rounded"
+            disabled={saving}
           />
+          {errors.description && (
+            <p className="text-red-500 text-sm">{errors.description.message}</p>
+          )}
         </div>
-
+        {/* Price */}
         <div>
           <label className="font-semibold">Price</label>
           <input
             type="number"
             {...register("price")}
             className="w-full mt-1 p-2 border rounded"
+            disabled={saving}
           />
+          {errors.price && (
+            <p className="text-red-500 text-sm">{errors.price.message}</p>
+          )}
         </div>
-
+        {/* UPI ID */}
         <div>
           <label className="font-semibold">UPI ID</label>
           <input
             {...register("upiId")}
             className="w-full mt-1 p-2 border rounded"
+            disabled={saving}
           />
+          {errors.upiId && (
+            <p className="text-red-500 text-sm">{errors.upiId.message}</p>
+          )}
         </div>
-
         <div className="grid md:grid-cols-2 gap-6">
           {/* Thumbnail */}
           <div className="flex flex-col gap-2">
             <label className="font-semibold">Thumbnail</label>
-            <input type="file" accept="image/*" {...register("thumbnail")} />
-
+            <input
+              type="file"
+              accept="image/*"
+              {...register("thumbnail")}
+              disabled={saving}
+            />
+            {errors.thumbnail && (
+              <p className="text-red-500 text-sm">{errors.thumbnail.message}</p>
+            )}
             {thumbnailPreview && (
               <img
                 src={thumbnailPreview}
+                alt="Thumbnail Preview"
                 className="mt-2 h-32 w-full object-cover rounded"
               />
             )}
           </div>
-
           {/* Videos */}
           <div className="flex flex-col gap-2">
             <label className="font-semibold">Add New Videos</label>
@@ -222,8 +240,11 @@ const EditCourse = () => {
               accept="video/*"
               multiple
               {...register("videos")}
+              disabled={saving}
             />
-
+            {errors.videos && (
+              <p className="text-red-500 text-sm">{errors.videos.message}</p>
+            )}
             {videoPreviewNames.length > 0 && (
               <ul className="mt-1 text-sm space-y-1">
                 {videoPreviewNames.map((name, i) => (
@@ -233,15 +254,18 @@ const EditCourse = () => {
             )}
           </div>
         </div>
-
-        <button className="w-full bg-amber-500 text-white py-3 rounded">
-          Save Changes
+        <button
+          type="submit"
+          disabled={saving}
+          className={`w-full py-3 rounded font-semibold ${
+            saving ? "bg-gray-400 text-gray-700" : "bg-amber-500 text-white"
+          }`}
+        >
+          {saving ? "Saving..." : "Save Changes"}
         </button>
       </form>
-
       <div className="mt-10">
         <h2 className="text-xl font-semibold mb-3">Existing Videos</h2>
-
         <div className="space-y-3">
           {course.videos.map((video) => (
             <InstructorVideo

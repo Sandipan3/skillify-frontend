@@ -5,16 +5,17 @@ const editCourseSchema = z.object({
 
   description: z.string().min(10, "Description is required"),
 
-  price: z
-    .string()
-    .optional()
-    .transform((val) => (val ? Number(val) : undefined))
-    .refine((val) => val === undefined || val >= 0, "Price cannot be negative"),
+  price: z.string(),
 
-  upiId: z.string().optional(),
+  upiId: z
+    .string()
+    .trim()
+    .min(1, "UPI ID is required")
+    .refine((val) => val.includes("@"), {
+      message: "UPI ID must contain @",
+    }),
 
   thumbnail: z.any().optional(),
-
   videos: z.any().optional(),
 });
 

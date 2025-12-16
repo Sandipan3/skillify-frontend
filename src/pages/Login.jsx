@@ -38,23 +38,33 @@ const Login = () => {
 
   const onSubmit = async (data) => {
     try {
-      const resultAction = await dispatch(login(data));
+      // LOGIN
+      const loginPromise = dispatch(login(data));
 
-      // If login failed (rejected)
-      if (!login.fulfilled.match(resultAction)) {
-        // Throw the backend message so catch() handles it
-        throw { message: resultAction.payload };
+      const loginResult = await toast.promise(loginPromise, {
+        loading: "Logging in...",
+        error: "Login failed",
+      });
+
+      if (loginResult.error) {
+        throw { message: loginResult.payload };
       }
 
-      // Login success (token stored)
-      const userResult = await dispatch(getUser());
+      // FETCH USER
+      const userPromise = dispatch(getUser());
+
+      const userResult = await toast.promise(userPromise, {
+        loading: "Fetching profile...",
+        error: "Failed to load profile",
+      });
+
+      if (userResult.error || !userResult.payload) {
+        throw { message: "Unable to fetch user" };
+      }
+
       const user = userResult.payload;
 
-      if (!user) {
-        toast.error("Unable to fetch user!");
-        return;
-      }
-
+      //  ONLY success toast
       toast.success(`Welcome back, ${user.name}!`);
 
       const roleRoutes = {
@@ -66,17 +76,7 @@ const Login = () => {
 
       navigate(roleRoutes[user.role] || "/login");
     } catch (error) {
-      const backendMessage =
-        error?.message || error?.response?.data?.message || "Login failed";
-
-      // Map field-specific messages
-      if (backendMessage.toLowerCase().includes("email")) {
-        setError("email", { message: backendMessage });
-      } else if (backendMessage.toLowerCase().includes("password")) {
-        setError("password", { message: backendMessage });
-      } else {
-        toast.error(backendMessage);
-      }
+      toast.error(error?.response?.data?.message || "Login failed");
     }
   };
 

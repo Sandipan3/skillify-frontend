@@ -45,7 +45,7 @@ const InstructorCourses = () => {
 
   const deleteCourse = (courseId) => {
     const toastId = toast(
-      <div className="bg-white p-4 shadow flex flex-col gap-3">
+      <div className="bg-white p-4  flex flex-col gap-3">
         <p className="font-medium">Delete this course and all its content?</p>
 
         <div className="flex justify-end gap-2">
