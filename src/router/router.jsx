@@ -28,7 +28,7 @@ const router = createBrowserRouter([
       { path: "unauthorized", element: <Unauthorized /> },
       { path: "auth/callback", element: <ExternalLoginHandler /> },
 
-      // 🔐 AUTHENTICATED (any role)
+      //  AUTHENTICATED (any role)
       {
         element: <ProtectedRoute />,
         children: [{ path: "dummy", element: <DummyPage /> }],
