@@ -1,14 +1,8 @@
 import React, { useState } from "react";
 import api from "../api/api";
 import toast from "react-hot-toast";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  login,
-  selectCurrentLoading,
-  selectCurrentError,
-  selectCurrentUser,
-  getUser,
-} from "../slice/authSlice";
+import { useDispatch } from "react-redux";
+import { login, getUser } from "../slice/authSlice";
 import { Link, useNavigate } from "react-router-dom";
 import SocialLogin from "../components/SocialLogin";
 import { useForm } from "react-hook-form";
@@ -25,7 +19,6 @@ const Login = () => {
   const {
     register,
     handleSubmit,
-    setError,
     reset,
     formState: { errors, isSubmitting },
   } = useForm({
@@ -75,6 +68,7 @@ const Login = () => {
       };
 
       navigate(roleRoutes[user.role] || "/login");
+      reset();
     } catch (error) {
       toast.error(error?.response?.data?.message || "Login failed");
     }
@@ -124,6 +118,16 @@ const Login = () => {
             {errors.password && (
               <p className="text-xs text-red-500">{errors.password.message}</p>
             )}
+          </div>
+
+          {/* Forgot Password */}
+          <div className="text-right">
+            <Link
+              to="/forgot-password"
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Forgot password?
+            </Link>
           </div>
 
           {/* Submit */}

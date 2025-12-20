@@ -16,6 +16,9 @@ import ManageVideos from "../pages/ManageVideos";
 import CourseStudents from "../pages/CourseStudents";
 import EditCourse from "../pages/EditCourse";
 import LandingPage from "../pages/LandingPage";
+import RegisterVerify from "../pages/RegisterVerify";
+import ResetPassword from "../pages/ResetPassword";
+import ForgotPassword from "../pages/ForgotPassword";
 
 const router = createBrowserRouter([
   {
@@ -25,8 +28,11 @@ const router = createBrowserRouter([
       { index: true, element: <LandingPage /> },
       { path: "login", element: <Login /> },
       { path: "register", element: <Register /> },
+      { path: "verify-otp", element: <RegisterVerify /> },
       { path: "unauthorized", element: <Unauthorized /> },
       { path: "auth/callback", element: <ExternalLoginHandler /> },
+      { path: "forgot-password", element: <ForgotPassword /> },
+      { path: "reset-password/:token", element: <ResetPassword /> },
 
       //  AUTHENTICATED (any role)
       {

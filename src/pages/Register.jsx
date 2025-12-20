@@ -16,7 +16,6 @@ const Register = () => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    setError,
     reset,
   } = useForm({
     resolver: zodResolver(registerSchema),
@@ -29,16 +28,19 @@ const Register = () => {
 
   const onSubmit = async (data) => {
     try {
-      const registerPromise = api.post("/register", data);
+      const registerPromise = api.post("/auth/register/init", data);
 
-      const res = await toast.promise(registerPromise, {
-        loading: "Registering...",
-        success: "Registration successful!",
-        error: "Registration failed",
+      await toast.promise(registerPromise, {
+        loading: "Sending OTP...",
+        success: "OTP sent to your email",
+        error: (err) => err?.response?.data?.message || "Failed to send OTP",
       });
 
       reset();
-      navigate("/login");
+
+      navigate("/verify-otp", {
+        state: { email: data.email },
+      });
     } catch (error) {
       toast.error(error.response?.data?.message || "Registration failed");
     }
