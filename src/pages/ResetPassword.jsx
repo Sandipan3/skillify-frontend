@@ -31,7 +31,7 @@ const ResetPassword = () => {
       });
 
       navigate("/login");
-    } catch {
+    } catch (error) {
       toast.error(err?.response?.data?.message || "Invalid or expired link");
     }
   };

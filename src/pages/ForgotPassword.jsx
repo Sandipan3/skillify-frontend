@@ -20,7 +20,7 @@ const ForgotPassword = () => {
 
       await toast.promise(forgotPromise, {
         loading: "Sending reset link...",
-        success: (res) => res.data.message,
+        success: "If the email exists, a reset link has been sent",
         error: (err) => err?.response?.data?.message || "Something went wrong",
       });
 
