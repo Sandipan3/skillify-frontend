@@ -11,11 +11,24 @@ const ProtectedRoute = ({ allowedRoles = [] }) => {
     return <Navigate to="/login" replace />;
   }
 
+  if (allowedRoles.length > 0) {
+    const userRoles = user?.roles || [];
+
+    //multi role setup
+    const hasAccess = allowedRoles.some((role) => userRoles.includes(role));
+
+    if (!hasAccess) {
+      return <Navigate to="/unauthorized" replace />;
+    }
+  }
+
+  /** For single role
   if (allowedRoles.length > 0 && user?.role) {
     if (!allowedRoles.includes(user.role)) {
       return <Navigate to="/unauthorized" replace />;
     }
   }
+  */
 
   return <Outlet />;
 };
