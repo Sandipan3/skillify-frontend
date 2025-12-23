@@ -11,20 +11,24 @@ const ExternalLoginHandler = () => {
   const handleRedirect = (user) => {
     toast.success(`Welcome ${user.name}!`);
 
-    const roleRoutes = {
-      admin: "/a/",
-      instructor: "/i/",
-      student: "/s/",
-      user: "/u/",
-    };
+    const rolePriority = [
+      { role: "admin", path: "/a/" },
+      { role: "instructor", path: "/i/" },
+      { role: "student", path: "/s/" },
+      { role: "user", path: "/u/" },
+    ];
 
-    const path = roleRoutes[user.role] || "/login";
+    const userRoles = user.roles || [];
 
-    if (!roleRoutes[user.role]) {
+    const match = rolePriority.find((r) => userRoles.includes(r.role));
+
+    if (!match) {
       toast.error("Login failed (Invalid Role)");
+      navigate("/login");
+      return;
     }
 
-    navigate(path);
+    navigate(match.path);
   };
 
   useEffect(() => {

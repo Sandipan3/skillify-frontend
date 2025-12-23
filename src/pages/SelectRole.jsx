@@ -38,8 +38,18 @@ const SelectRole = () => {
 
       const user = await dispatch(getUser()).unwrap();
 
-      if (user.role === "student") return navigate("/s");
-      if (user.role === "instructor") return navigate("/i");
+      const roles = user.roles || [];
+
+      if (roles.includes("instructor")) {
+        return navigate("/i");
+      }
+
+      if (roles.includes("student")) {
+        return navigate("/s");
+      }
+
+      toast.error("Invalid role");
+      navigate("/login");
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong");
     }
