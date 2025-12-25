@@ -1,14 +1,13 @@
 import React, { useState } from "react";
-import api from "../api/api";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
-import { login, getUser } from "../slice/authSlice";
 import { Link, useNavigate } from "react-router-dom";
-import SocialLogin from "../components/SocialLogin";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import loginSchema from "../schema/LoginSchema";
 import { Eye, EyeOff } from "lucide-react";
+import SocialLogin from "../../components/SocialLogin";
+import loginSchema from "../../schema/LoginSchema";
+import { login, getUser } from "../../slice/authSlice";
 
 const Login = () => {
   const dispatch = useDispatch();

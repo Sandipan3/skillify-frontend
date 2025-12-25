@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import editCourseSchema from "../schema/editCourseSchema";
-import api from "../api/api";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
-import InstructorVideo from "../components/InstructorVideo";
+import editCourseSchema from "../../schema/editCourseSchema";
+import api from "../../api/api";
+import InstructorVideo from "../../components/InstructorVideo";
 
 const EditCourse = () => {
   const { courseId } = useParams();

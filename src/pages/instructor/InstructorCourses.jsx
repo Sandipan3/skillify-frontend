@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import api from "../api/api";
-import CourseCard from "../components/CourseCard";
 import toast from "react-hot-toast";
+import api from "../../api/api";
+import CourseCard from "../../components/CourseCard";
 
 const InstructorCourses = () => {
   const [courses, setCourses] = useState([]);

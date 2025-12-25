@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { selectCurrentUser } from "../slice/authSlice";
+import { selectCurrentUser } from "../../slice/authSlice";
 
 const LandingPage = () => {
   const user = useSelector(selectCurrentUser);

@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getUser, logoutUser, selectCurrentUser } from "../slice/authSlice";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { getUser, logoutUser, selectCurrentUser } from "../../slice/authSlice";
 
 const DummyPage = () => {
   const dispatch = useDispatch();

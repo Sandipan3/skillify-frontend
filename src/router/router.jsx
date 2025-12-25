@@ -1,24 +1,23 @@
 import { createBrowserRouter } from "react-router-dom";
-import Login from "../pages/Login";
-import Register from "../pages/Register";
+import Login from "../pages/auth/Login";
+import Register from "../pages/auth/Register";
 import ProtectedRoute from "../components/ProtectedRoute";
 import StudentLayout from "./StudentLayout";
 import InstructorLayout from "./InstructorLayout";
 import AdminLayout from "./AdminLayout";
-import Unauthorized from "../pages/Unauthorized";
-import InstructorDashboard from "../pages/InstructorDashboard";
-import CreateCourse from "../pages/CreateCourse";
+import Unauthorized from "../pages/others/Unauthorized";
+import InstructorDashboard from "../pages/instructor/InstructorDashboard";
+import CreateCourse from "../pages/instructor/CreateCourse";
 import ExternalLoginHandler from "../components/ExternalLoginHandler";
-import DummyPage from "../pages/DummyPage";
-import SelectRole from "../pages/SelectRole";
-import InstructorCourses from "../pages/InstructorCourses";
-import ManageVideos from "../pages/ManageVideos";
-import CourseStudents from "../pages/CourseStudents";
-import EditCourse from "../pages/EditCourse";
-import LandingPage from "../pages/LandingPage";
-import RegisterVerify from "../pages/RegisterVerify";
-import ResetPassword from "../pages/ResetPassword";
-import ForgotPassword from "../pages/ForgotPassword";
+import DummyPage from "../pages/others/DummyPage";
+import SelectRole from "../pages/auth/SelectRole";
+import InstructorCourses from "../pages/instructor/InstructorCourses";
+import ManageVideos from "../pages/instructor/ManageVideos";
+import EditCourse from "../pages/instructor/EditCourse";
+import LandingPage from "../pages/others/LandingPage";
+import RegisterVerify from "../pages/auth/RegisterVerify";
+import ResetPassword from "../pages/auth/ResetPassword";
+import ForgotPassword from "../pages/auth/ForgotPassword";
 
 const router = createBrowserRouter([
   {
@@ -68,10 +67,6 @@ const router = createBrowserRouter([
               { path: "courses", element: <InstructorCourses /> },
               { path: "courses/:courseId/edit", element: <EditCourse /> },
               { path: "courses/:courseId/videos", element: <ManageVideos /> },
-              {
-                path: "courses/:courseId/students",
-                element: <CourseStudents />,
-              },
             ],
           },
         ],

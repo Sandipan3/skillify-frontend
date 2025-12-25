@@ -1,9 +1,9 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import resetPasswordSchema from "../schema/resetPasswordSchema";
-import api from "../api/api";
 import toast from "react-hot-toast";
+import resetPasswordSchema from "../../schema/resetPasswordSchema";
+import api from "../../api/api";
 
 const ResetPassword = () => {
   const { token } = useParams();

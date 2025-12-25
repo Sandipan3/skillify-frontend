@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import createCourseSchema from "../schema/createCourseSchema";
-import api from "../api/api";
-import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import createCourseSchema from "../../schema/createCourseSchema";
+import api from "../../api/api";
 
 const CreateCourse = () => {
   const navigate = useNavigate();

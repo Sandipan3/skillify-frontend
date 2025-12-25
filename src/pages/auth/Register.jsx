@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import api from "../api/api";
-import SocialLogin from "../components/SocialLogin";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import registerSchema from "../schema/registerSchema";
 import { Eye, EyeOff } from "lucide-react";
+import registerSchema from "../../schema/registerSchema";
+import api from "../../api/api";
+import SocialLogin from "../../components/SocialLogin";
 
 const Register = () => {
   const navigate = useNavigate();

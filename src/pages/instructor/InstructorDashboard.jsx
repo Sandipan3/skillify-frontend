@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import api from "../api/api";
 import { useLocation } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { selectCurrentUser } from "../slice/authSlice";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "../../slice/authSlice";
+import api from "../../api/api";
 
 const InstructorDashboard = () => {
   const user = useSelector(selectCurrentUser);

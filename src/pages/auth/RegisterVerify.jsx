@@ -3,8 +3,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import api from "../api/api";
-import verifyRegisterSchema from "../schema/verifyRegisterSchema";
+import api from "../../api/api";
+import verifyRegisterSchema from "../../schema/verifyRegisterSchema";
 
 const RegisterVerify = () => {
   const { state } = useLocation();

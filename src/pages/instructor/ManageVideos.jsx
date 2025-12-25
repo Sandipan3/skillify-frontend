@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import api from "../api/api";
 import toast from "react-hot-toast";
-import InstructorVideo from "../components/InstructorVideo";
+import InstructorVideo from "../../components/InstructorVideo";
+import api from "../../api/api";
 
 const ManageVideos = () => {
   const { courseId } = useParams();

@@ -1,12 +1,12 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import selectRoleSchema from "../schema/selectRoleSchema";
-import api from "../api/api";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { getUser } from "../slice/authSlice";
+import selectRoleSchema from "../../schema/selectRoleSchema";
+import api from "../../api/api";
+import { getUser } from "../../slice/authSlice";
 
 const SelectRole = () => {
   const navigate = useNavigate();
