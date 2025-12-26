@@ -5,11 +5,13 @@ import Footer from "../components/Footer";
 
 const InstructorLayout = () => {
   return (
-    <section className=" bg-gray-50">
+    <section className="min-h-screen flex flex-col bg-gray-50">
       <InstructorNavbar />
-      <main className="min-h-screen">
+
+      <main className="flex-1 p-4 md:p-6">
         <Outlet />
       </main>
+
       <Footer />
     </section>
   );

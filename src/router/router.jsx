@@ -1,23 +1,38 @@
 import { createBrowserRouter } from "react-router-dom";
+//admin pages
+
+//auth pages
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
-import ProtectedRoute from "../components/ProtectedRoute";
-import StudentLayout from "./StudentLayout";
-import InstructorLayout from "./InstructorLayout";
-import AdminLayout from "./AdminLayout";
-import Unauthorized from "../pages/others/Unauthorized";
-import InstructorDashboard from "../pages/instructor/InstructorDashboard";
-import CreateCourse from "../pages/instructor/CreateCourse";
-import ExternalLoginHandler from "../components/ExternalLoginHandler";
-import DummyPage from "../pages/others/DummyPage";
 import SelectRole from "../pages/auth/SelectRole";
-import InstructorCourses from "../pages/instructor/InstructorCourses";
-import ManageVideos from "../pages/instructor/ManageVideos";
-import EditCourse from "../pages/instructor/EditCourse";
-import LandingPage from "../pages/others/LandingPage";
 import RegisterVerify from "../pages/auth/RegisterVerify";
 import ResetPassword from "../pages/auth/ResetPassword";
 import ForgotPassword from "../pages/auth/ForgotPassword";
+//instructor pages
+import InstructorDashboard from "../pages/instructor/InstructorDashboard";
+import CreateCourse from "../pages/instructor/CreateCourse";
+import InstructorCourses from "../pages/instructor/InstructorCourses";
+import ManageVideos from "../pages/instructor/ManageVideos";
+import EditCourse from "../pages/instructor/EditCourse";
+//student pages
+import StudentDashboard from "../pages/student/StudentDashboard";
+import BrowseCourses from "../pages/student/BrowseCourses";
+import Checkout from "../pages/student/Checkout";
+import CoursePlayer from "../pages/student/CoursePlayer";
+import CoursePreview from "../pages/student/CoursePreview";
+import MyCourses from "../pages/student/MyCourses";
+import PaymentStatus from "../pages/student/PaymentStatus";
+//other pages
+import Unauthorized from "../pages/others/Unauthorized";
+import LandingPage from "../pages/others/LandingPage";
+import DummyPage from "../pages/others/DummyPage";
+//components
+import ProtectedRoute from "../components/ProtectedRoute";
+import ExternalLoginHandler from "../components/ExternalLoginHandler";
+//layouts
+import StudentLayout from "./StudentLayout";
+import InstructorLayout from "./InstructorLayout";
+import AdminLayout from "./AdminLayout";
 
 const router = createBrowserRouter([
   {
@@ -80,8 +95,13 @@ const router = createBrowserRouter([
             path: "s",
             element: <StudentLayout />,
             children: [
-              { index: true, element: <div>Hi student</div> },
-              { path: "dashboard", element: <div>Dashboard student</div> },
+              { index: true, element: <StudentDashboard /> },
+              { path: "courses", element: <BrowseCourses /> },
+              { path: "my-courses", element: <MyCourses /> },
+              { path: "courses/:courseId", element: <CoursePreview /> },
+              { path: "learn/:courseId", element: <CoursePlayer /> },
+              { path: "checkout/:courseId", element: <Checkout /> },
+              { path: "payment-status", element: <PaymentStatus /> },
             ],
           },
         ],
