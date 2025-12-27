@@ -8,7 +8,6 @@ const CoursePlayer = () => {
   const navigate = useNavigate();
 
   const [course, setCourse] = useState(null);
-  const [activeVideo, setActiveVideo] = useState(null);
   const [openIndex, setOpenIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -25,7 +24,6 @@ const CoursePlayer = () => {
         }
 
         setCourse(courseData);
-        setActiveVideo(courseData.videos[0]);
       } catch (err) {
         navigate("/s");
       } finally {
@@ -40,53 +38,46 @@ const CoursePlayer = () => {
   if (!course) return null;
 
   return (
-    <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
-      {/* 🎬 VIDEO PLAYER */}
-      <div className="md:col-span-2 bg-black rounded-lg overflow-hidden">
-        <video key={activeVideo.url} controls className="w-full h-[420px]">
-          <source src={activeVideo.url} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
+    <div className="max-w-4xl mx-auto p-6">
+      {/* COURSE TITLE */}
+      <h1 className="text-2xl font-bold mb-6">{course.title}</h1>
 
-        <div className="p-4 bg-white">
-          <h1 className="text-xl font-semibold">{course.title}</h1>
-          <p className="text-gray-600 mt-1">{activeVideo.title}</p>
-        </div>
-      </div>
-
-      {/* 📚 VIDEO LIST (ACCORDION STYLE) */}
+      {/* COURSE CONTENT */}
       <div className="bg-white rounded-lg shadow p-4">
         <h2 className="text-lg font-semibold mb-4">Course Content</h2>
 
-        {course.videos.map((video, index) => (
-          <div key={video._id} className="border-b last:border-none">
-            <button
-              onClick={() => setOpenIndex(openIndex === index ? -1 : index)}
-              className="w-full flex justify-between items-center py-3 text-left"
-            >
-              <div className="flex items-center gap-2">
-                <PlayCircle size={18} />
-                <span className="font-medium">{video.title}</span>
-              </div>
-              <ChevronDown
-                className={`transition ${
-                  openIndex === index ? "rotate-180" : ""
-                }`}
-              />
-            </button>
+        {course.videos.map((video, index) => {
+          const isOpen = openIndex === index;
 
-            {openIndex === index && (
-              <div className="pl-6 pb-3">
-                <button
-                  onClick={() => setActiveVideo(video)}
-                  className="text-blue-600 hover:underline text-sm"
-                >
-                  Play Video
-                </button>
-              </div>
-            )}
-          </div>
-        ))}
+          return (
+            <div key={video._id} className="border-b last:border-none">
+              <button
+                onClick={() => setOpenIndex(isOpen ? -1 : index)}
+                className="w-full flex justify-between items-center py-3 text-left"
+              >
+                <div className="flex items-center gap-2">
+                  <PlayCircle size={18} />
+                  <span className="font-medium">{video.title}</span>
+                </div>
+
+                <ChevronDown
+                  className={`transition-transform ${
+                    isOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {isOpen && (
+                <div className="pb-4">
+                  <video key={video.url} controls className="w-full rounded">
+                    <source src={video.url} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
