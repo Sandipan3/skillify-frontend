@@ -35,7 +35,7 @@ const EditCourse = () => {
     setLoading(true);
     try {
       const res = await api.get(`/course/${courseId}`);
-      const c = res.data.data;
+      const c = res.data.data.course;
 
       setCourse({ ...c, videos: c.videos || [] }); // Set form values from fetched data
       setValue("title", c.title);
