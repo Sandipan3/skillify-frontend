@@ -25,7 +25,9 @@ const MyCourses = () => {
     fetchMyCourses();
   }, []);
 
-  const handleUnenrollCourse = (courseId) => {
+  const handleUnenrollCourse = (e, courseId) => {
+    e.stopPropagation();
+
     const toastId = toast(
       <div className="bg-white p-4 shadow flex flex-col gap-3">
         <p className="font-medium">Unenroll from this course?</p>
@@ -44,7 +46,7 @@ const MyCourses = () => {
               toast.dismiss(toastId);
 
               await toast.promise(
-                api.delete(`/enrollments/unenroll/${courseId}`),
+                api.delete(`/enrollment/unenroll/${courseId}`),
                 {
                   loading: "Unenrolling...",
                   success: "Successfully unenrolled",
@@ -89,7 +91,7 @@ const MyCourses = () => {
 
             <button
               onClick={(e) => handleUnenrollCourse(course._id, e)}
-              className="text-sm text-red-600 hover:underline"
+              className="text-sm text-red-600 hover:text-white hover:bg-red-500"
             >
               Unenroll
             </button>
