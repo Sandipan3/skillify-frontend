@@ -90,8 +90,8 @@ const MyCourses = () => {
             <h3 className="font-semibold text-lg">{course.title}</h3>
 
             <button
-              onClick={(e) => handleUnenrollCourse(course._id, e)}
-              className="text-sm text-red-600 hover:text-white hover:bg-red-500"
+              onClick={(e) => handleUnenrollCourse(e, course._id)}
+              className="px-3 py-1.5 text-sm text-red-600 rounded hover:text-white hover:bg-red-500 transition"
             >
               Unenroll
             </button>
