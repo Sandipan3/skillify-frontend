@@ -1,11 +1,15 @@
 import { z } from "zod";
 
 const createCourseSchema = z.object({
-  title: z.string().min(3, "Title is required"),
+  title: z.string().min(3, "Title must be at least 3 characters"),
 
-  description: z.string().min(10, "Description is required"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
 
-  price: z.string(),
+  price: z.coerce
+    .number({
+      invalid_type_error: "Price must be a number",
+    })
+    .min(0, "Price cannot be negative"),
 
   upiId: z
     .string()

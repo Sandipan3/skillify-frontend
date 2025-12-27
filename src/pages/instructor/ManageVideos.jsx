@@ -14,7 +14,9 @@ const ManageVideos = () => {
   const fetchCourse = async () => {
     try {
       const res = await api.get(`/course/${courseId}`);
-      const c = res.data.data;
+      const c = res.data.data.course;
+      console.log(c);
+
       setCourse({ ...c, videos: c.videos || [] });
     } catch {
       toast.error("Failed to load course");

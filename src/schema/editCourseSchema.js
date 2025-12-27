@@ -5,7 +5,11 @@ const editCourseSchema = z.object({
 
   description: z.string().min(10, "Description is required"),
 
-  price: z.string(),
+  price: z.coerce
+    .number({
+      invalid_type_error: "Price must be a number",
+    })
+    .min(0, "Price cannot be negative"),
 
   upiId: z
     .string()
