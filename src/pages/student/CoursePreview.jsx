@@ -33,7 +33,7 @@ const CoursePreview = () => {
   const handleClick = async () => {
     if (course.price === 0) {
       try {
-        const enrollPromise = api.post("/enrollments/enroll-free", {
+        const enrollPromise = api.post("/enrollment/enroll-free", {
           courseId: course._id,
         });
 
