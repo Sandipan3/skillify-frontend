@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../api/api";
 
+// NOTE: Note using this for now
+
 const initialState = {
   courses: [],
   myCourses: [],
