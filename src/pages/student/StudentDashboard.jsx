@@ -34,7 +34,7 @@ const StudentDashboard = () => {
       {enrollments.length === 0 ? (
         <div className="border rounded p-6 text-center">
           <p className="text-gray-600 mb-4">
-            You haven’t enrolled in any courses yet.
+            You haven't enrolled in any courses yet.
           </p>
           <button
             onClick={() => navigate("/s/courses")}
@@ -54,7 +54,7 @@ const StudentDashboard = () => {
                 className="border rounded overflow-hidden"
               >
                 <img
-                  src={course.thumbnail}
+                  src={course.thumbnail?.url}
                   alt={course.title}
                   className="h-40 w-full object-cover"
                 />
