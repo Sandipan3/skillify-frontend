@@ -28,7 +28,7 @@ const Checkout = () => {
 
   const startPayment = async () => {
     try {
-      const res = await api.post("/student/enroll-paid", { courseId });
+      const res = await api.post("/payment/enroll-paid", { courseId });
 
       const { orderId, amount, currency } = res.data.data;
 

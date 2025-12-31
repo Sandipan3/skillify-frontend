@@ -18,7 +18,7 @@ const PaymentStatus = () => {
 
     const verifyPayment = async () => {
       try {
-        await api.post("/student/verify-payment", location.state);
+        await api.post("/payment/verify-payment", location.state);
 
         setStatus("success");
         toast.success("Enrollment successful!");
