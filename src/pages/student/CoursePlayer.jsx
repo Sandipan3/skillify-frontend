@@ -17,7 +17,6 @@ const CoursePlayer = () => {
         const res = await api.get(`/course/${courseId}`);
         const courseData = res.data.data.course;
 
-        // 🚫 Not enrolled → redirect
         if (!courseData.videos || courseData.videos.length === 0) {
           navigate(`/s/courses/${courseId}`);
           return;
