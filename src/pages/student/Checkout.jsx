@@ -30,14 +30,13 @@ const Checkout = () => {
     try {
       const res = await api.post("/payment/enroll-paid", { courseId });
 
-      // FIX: Access the 'order' object from your API response
-      const { order } = res.data.data;
+      const { orderId, amount, currency } = res.data.data;
 
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY,
-        amount: order.amount, // Corrected path
-        currency: order.currency, // Corrected path
-        order_id: order.id, // Your API returns 'id', Razorpay needs 'order_id'
+        amount,
+        currency,
+        order_id: orderId,
         name: "Course Platform",
         description: course?.title,
         handler: function (response) {
