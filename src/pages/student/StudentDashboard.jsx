@@ -9,22 +9,22 @@ const StudentDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchEnrollments = async () => {
+    const fetchMyEnrollments = async () => {
       try {
-        const res = await api.get("/enrollment/getMyEnrollments");
+        const res = await api.get("/enrollment/my-enrollments");
         setEnrollments(res.data.data.enrollments);
       } catch (err) {
-        toast.error("Failed to load dashboard");
+        toast.error("Failed to load your courses");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchEnrollments();
+    fetchMyEnrollments();
   }, []);
 
   if (loading) {
-    return <p className="p-6">Loading dashboard...</p>;
+    return <div className="p-6">Loading dashboard...</div>;
   }
 
   return (
@@ -45,41 +45,41 @@ const StudentDashboard = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {enrollments.map((enrollment) => (
-            <div
-              key={enrollment._id}
-              className="border rounded overflow-hidden"
-            >
-              <img
-                src={enrollment.course.thumbnail}
-                alt={enrollment.course.title}
-                className="h-40 w-full object-cover"
-              />
+          {enrollments.map((enrollment) => {
+            const course = enrollment.course;
 
-              <div className="p-4">
-                <h3 className="font-semibold text-lg mb-2">
-                  {enrollment.course.title}
-                </h3>
+            return (
+              <div
+                key={enrollment._id}
+                className="border rounded overflow-hidden"
+              >
+                <img
+                  src={course.thumbnail}
+                  alt={course.title}
+                  className="h-40 w-full object-cover"
+                />
 
-                {/* Placeholder for progress */}
-                <div className="mb-3">
-                  <div className="w-full bg-gray-200 h-2 rounded">
-                    <div className="bg-blue-600 h-2 rounded w-[0%]" />
-                  </div>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Progress tracking coming soon
+                <div className="p-4">
+                  <h3 className="font-semibold text-lg mb-1">{course.title}</h3>
+
+                  <p className="text-sm text-gray-600 mb-2">
+                    By {course.instructor?.name}
                   </p>
-                </div>
 
-                <button
-                  onClick={() => navigate(`/s/learn/${enrollment.course._id}`)}
-                  className="w-full bg-green-600 text-white py-2 rounded"
-                >
-                  Continue Learning
-                </button>
+                  <p className="text-sm text-gray-500 mb-4 line-clamp-2">
+                    {course.description}
+                  </p>
+
+                  <button
+                    onClick={() => navigate(`/s/learn/${course._id}`)}
+                    className="w-full bg-green-600 text-white py-2 rounded"
+                  >
+                    Continue Learning
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
