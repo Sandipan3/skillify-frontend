@@ -14,7 +14,7 @@ const Checkout = () => {
   useEffect(() => {
     const fetchCourse = async () => {
       try {
-        const res = await api.get(`/courses/${courseId}`);
+        const res = await api.get(`/course/${courseId}`);
         setCourse(res.data.data.course);
       } catch (err) {
         toast.error("Failed to load course");
