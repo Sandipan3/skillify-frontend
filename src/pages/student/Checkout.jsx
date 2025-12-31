@@ -37,13 +37,13 @@ const Checkout = () => {
       }
 
       const res = await api.post("/payment/enroll-paid", { courseId });
-      const { orderId, amount, currency } = res.data.data;
+      const order = res.data.data.order;
 
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY,
-        amount,
-        currency,
-        order_id: orderId,
+        amount: order.amount,
+        currency: order.currency,
+        order_id: order.id, // ✅ THIS IS CRITICAL
         name: "Course Platform",
         handler: function (response) {
           navigate("/s/payment-status", {
@@ -57,10 +57,10 @@ const Checkout = () => {
         },
       };
 
-      const rzp = new window.Razorpay(options); // ✅ NOW SAFE
+      const rzp = new window.Razorpay(options); //
       rzp.open();
-    } catch (error) {
-      console.error("Payment Error:", err); // Log the actual error for debugging
+    } catch (err) {
+      console.error("Payment Error:", err);
       toast.error(err.response?.data?.message || "Payment failed");
     }
   };
