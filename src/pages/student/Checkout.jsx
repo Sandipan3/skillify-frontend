@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../api/api";
 import toast from "react-hot-toast";
+import loadRazorpay from "../../utils/loadRazorpay.js";
 
 const Checkout = () => {
   const { courseId } = useParams();
@@ -28,8 +29,14 @@ const Checkout = () => {
 
   const startPayment = async () => {
     try {
-      const res = await api.post("/payment/enroll-paid", { courseId });
+      const loaded = await loadRazorpay();
 
+      if (!loaded) {
+        toast.error("Razorpay SDK failed to load");
+        return;
+      }
+
+      const res = await api.post("/payment/enroll-paid", { courseId });
       const { orderId, amount, currency } = res.data.data;
 
       const options = {
@@ -38,7 +45,6 @@ const Checkout = () => {
         currency,
         order_id: orderId,
         name: "Course Platform",
-        description: course?.title,
         handler: function (response) {
           navigate("/s/payment-status", {
             state: {
@@ -49,14 +55,11 @@ const Checkout = () => {
             },
           });
         },
-        theme: {
-          color: "#2563eb",
-        },
       };
 
-      const rzp = new window.Razorpay(options);
+      const rzp = new window.Razorpay(options); // ✅ NOW SAFE
       rzp.open();
-    } catch (err) {
+    } catch (error) {
       console.error("Payment Error:", err); // Log the actual error for debugging
       toast.error(err.response?.data?.message || "Payment failed");
     }
