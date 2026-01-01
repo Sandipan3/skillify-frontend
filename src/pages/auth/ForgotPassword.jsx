@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
-import forgotPasswordSchema from "../../api/api";
+import forgotPasswordSchema from "../../schema/forgotPasswordSchema";
 import api from "../../api/api";
 
 const ForgotPassword = () => {
