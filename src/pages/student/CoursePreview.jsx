@@ -44,7 +44,7 @@ const CoursePreview = () => {
             error?.response?.data?.message || "Unable to enroll",
         });
 
-        navigate(`/s/learn/${course._id}`);
+        navigate(`/s/learn/${course._id}`, { state: { course } });
         return;
       } catch (error) {
         console.error("Free enrollment failed", error);
@@ -52,7 +52,7 @@ const CoursePreview = () => {
     }
 
     // paid course
-    navigate(`/s/checkout/${course._id}`);
+    navigate(`/s/checkout/${course._id}`, { state: { course } });
   };
 
   return (

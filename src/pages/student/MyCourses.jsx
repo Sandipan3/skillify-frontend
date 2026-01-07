@@ -29,19 +29,21 @@ const MyCourses = () => {
     e.stopPropagation();
 
     const toastId = toast(
-      <div className="bg-white p-4 shadow flex flex-col gap-3">
-        <p className="font-medium">Unenroll from this course?</p>
+      <div className="bg-white p-4 rounded-md shadow-md flex flex-col gap-3">
+        <p className="font-medium text-gray-800">Unenroll from this course?</p>
 
         <div className="flex justify-end gap-2">
+          {/* Cancel */}
           <button
-            className="px-3 py-1 rounded bg-slate-400"
+            className="px-3 py-1 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
             onClick={() => toast.dismiss(toastId)}
           >
             Cancel
           </button>
 
+          {/* Unenroll */}
           <button
-            className="px-3 py-1 bg-red-500 text-white rounded"
+            className="px-3 py-1 rounded bg-red-500 text-white hover:bg-red-600 transition"
             onClick={async () => {
               toast.dismiss(toastId);
 
@@ -53,6 +55,7 @@ const MyCourses = () => {
                   error: "Failed to unenroll",
                 }
               );
+
               setCourses((prev) =>
                 prev.filter((course) => course._id !== courseId)
               );
@@ -77,7 +80,9 @@ const MyCourses = () => {
       {courses.map((course) => (
         <div
           key={course._id}
-          onClick={() => navigate(`/s/learn/${course._id}`)}
+          onClick={() =>
+            navigate(`/s/learn/${course._id}`, { state: { course } })
+          }
           className="cursor-pointer bg-white rounded-lg shadow hover:shadow-md transition relative"
         >
           <img

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import api from "../../api/api";
 import toast from "react-hot-toast";
 import loadRazorpay from "../../utils/loadRazorpay.js";
@@ -7,12 +7,16 @@ import loadRazorpay from "../../utils/loadRazorpay.js";
 const Checkout = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [course, setCourse] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const passedCourse = location.state?.course;
 
-  // fetch course details (optional but recommended)
+  const [course, setCourse] = useState(passedCourse || null);
+  const [loading, setLoading] = useState(!passedCourse);
+
   useEffect(() => {
+    if (passedCourse) return;
+
     const fetchCourse = async () => {
       try {
         const res = await api.get(`/course/${courseId}`);
@@ -25,12 +29,11 @@ const Checkout = () => {
     };
 
     fetchCourse();
-  }, [courseId]);
+  }, [courseId, passedCourse]);
 
   const startPayment = async () => {
     try {
       const loaded = await loadRazorpay();
-
       if (!loaded) {
         toast.error("Razorpay SDK failed to load");
         return;
@@ -43,7 +46,7 @@ const Checkout = () => {
         key: import.meta.env.VITE_RAZORPAY_KEY,
         amount: order.amount,
         currency: order.currency,
-        order_id: order.id, // ✅ THIS IS CRITICAL
+        order_id: order.id,
         name: "Course Platform",
         handler: function (response) {
           navigate("/s/payment-status", {
@@ -57,10 +60,9 @@ const Checkout = () => {
         },
       };
 
-      const rzp = new window.Razorpay(options); //
+      const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (err) {
-      console.error("Payment Error:", err);
       toast.error(err.response?.data?.message || "Payment failed");
     }
   };

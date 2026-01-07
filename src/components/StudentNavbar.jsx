@@ -31,7 +31,7 @@ const itemVariants = {
 };
 
 const navLinks = [
-  { to: "/s/", label: "Dashboard" },
+  { to: "/s", label: "Dashboard" },
   { to: "/s/courses", label: "Browse Courses" },
   { to: "/s/my-courses", label: "My Courses" },
 ];

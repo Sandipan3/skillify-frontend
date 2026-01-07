@@ -71,7 +71,9 @@ const StudentDashboard = () => {
                   </p>
 
                   <button
-                    onClick={() => navigate(`/s/learn/${course._id}`)}
+                    onClick={() =>
+                      navigate(`/s/learn/${course._id}`, { state: { course } })
+                    }
                     className="w-full bg-green-600 text-white py-2 rounded"
                   >
                     Continue Learning

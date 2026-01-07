@@ -39,7 +39,9 @@ const BrowseCourses = () => {
         {courses.map((course) => (
           <div
             key={course._id}
-            onClick={() => navigate(`/s/courses/${course._id}`)}
+            onClick={() =>
+              navigate(`/s/courses/${course._id}`, { state: { course } })
+            }
             className="cursor-pointer bg-white rounded-lg shadow hover:shadow-md"
           >
             <img
