@@ -14,7 +14,12 @@ const MyCourses = () => {
     const fetchMyCourses = async () => {
       try {
         const res = await api.get("/enrollment/my-enrollments");
-        setCourses(res.data.data.enrollments);
+
+        const courses = res.data.data.enrollments.map(
+          (enrollment) => enrollment.course
+        );
+
+        setCourses(courses);
       } catch (err) {
         setError("Failed to load your courses");
       } finally {
