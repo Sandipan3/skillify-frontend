@@ -48,7 +48,7 @@ const CoursePlayer = () => {
       <div className="bg-white rounded-lg shadow p-4">
         <h2 className="text-lg font-semibold mb-4">Course Content</h2>
 
-        {course.videos.map((video, index) => {
+        {course.videos?.map((video, index) => {
           const isOpen = openIndex === index;
 
           return (

@@ -81,6 +81,7 @@ const StudentNavbar = () => {
       <AnimatePresence>
         {mobileOpen && (
           <>
+            <div className="h-32"></div>
             {/* Sidebar */}
             <motion.ul
               variants={containerVariants}
