@@ -13,8 +13,8 @@ const MyCourses = () => {
   useEffect(() => {
     const fetchMyCourses = async () => {
       try {
-        const res = await api.get("/course/student-courses");
-        setCourses(res.data.data.courses);
+        const res = await api.get("/enrollment/my-enrollments");
+        setCourses(res.data.data.enrollments);
       } catch (err) {
         setError("Failed to load your courses");
       } finally {
