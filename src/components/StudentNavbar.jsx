@@ -90,7 +90,7 @@ const StudentNavbar = () => {
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className="md:hidden fixed top-0 right-0 h-full w-64 bg-blue-500 z-50 p-6 flex flex-col gap-6"
             >
-              <div className="h-32"></div>
+              <div className="h-10"></div>
               {navLinks.map((link) => (
                 <motion.li key={link.to} variants={itemVariants}>
                   <Link
