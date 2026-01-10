@@ -114,17 +114,15 @@ const ManageVideos = () => {
         <p className="text-gray-500">No videos yet</p>
       )}
 
-      {course.videos
-        .filter((video) => video && video._id)
-        .map((video) => (
-          <InstructorVideo
-            key={video._id}
-            video={video}
-            replacing={replacingVideoId === video._id}
-            onReplace={(file) => replaceVideo(video._id, file)}
-            onDelete={() => deleteVideo(video._id)}
-          />
-        ))}
+      {course.videos?.map((video) => (
+        <InstructorVideo
+          key={video._id}
+          video={video}
+          replacing={replacingVideoId === video._id}
+          onReplace={(file) => replaceVideo(video._id, file)}
+          onDelete={() => deleteVideo(video._id)}
+        />
+      ))}
     </div>
   );
 };
