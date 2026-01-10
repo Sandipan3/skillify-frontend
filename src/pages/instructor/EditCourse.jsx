@@ -138,6 +138,7 @@ const EditCourse = () => {
         error: (err) => err?.response?.data?.message || "Replace failed",
       }
     );
+    navigate("/i/courses");
   };
 
   // DELETE VIDEO
