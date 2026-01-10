@@ -6,13 +6,9 @@ import api from "../../api/api";
 
 const ManageVideos = () => {
   const { courseId } = useParams();
-  const location = useLocation();
-
-  // course passed from EditCourse ( CourseCard  )
-  const passedCourse = location.state?.course;
 
   const [loading, setLoading] = useState(true);
-  const [course, setCourse] = useState(passedCourse || { videos: [] });
+  const [course, setCourse] = useState({ videos: [] });
   const [replacingVideoId, setReplacingVideoId] = useState(null);
 
   const fetchCourse = async () => {
@@ -29,16 +25,9 @@ const ManageVideos = () => {
     }
   };
 
-  // INITIAL LOAD
   useEffect(() => {
-    if (passedCourse) {
-      setCourse({ ...passedCourse, videos: passedCourse.videos || [] });
-      setLoading(false);
-      return;
-    }
-
     fetchCourse();
-  }, [courseId, passedCourse]);
+  }, [courseId]);
 
   // DELETE VIDEO
   const deleteVideo = (videoId) => {
