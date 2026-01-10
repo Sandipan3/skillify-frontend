@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import api from "../../api/api";
 
 const CoursePreview = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [course, setCourse] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const passedCourse = location.state?.course;
+
+  const [course, setCourse] = useState(passedCourse || null);
+  const [loading, setLoading] = useState(!passedCourse);
   const [error, setError] = useState(null);
 
   useEffect(() => {

@@ -13,14 +13,15 @@ const InstructorCourses = () => {
   const fetchCourses = async (pageNumber = 1) => {
     setLoading(true);
     try {
-      const res = await api.get(`/course/my-courses?page=${pageNumber}`);
+      //TODO: Fix N+1 api calls
+      const res = await api.get(`/course/my-courses?page=${pageNumber}`); // api call = 1
 
       const list = res.data.data.courses;
       const updatedCourses = await Promise.all(
         list.map(async (course) => {
           try {
             const enrollRes = await api.get(
-              `/enrollment/enrollment-count/${course._id}`
+              `/enrollment/enrollment-count/${course._id}` //api call = N
             );
             return { ...course, enrolledCount: enrollRes.data.data.count };
           } catch {
@@ -50,7 +51,7 @@ const InstructorCourses = () => {
 
         <div className="flex justify-end gap-2">
           <button
-            className="px-3 py-1 bg-gray-300 rounded"
+            className="px-3 py-1 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
             onClick={() => toast.dismiss(toastId)}
           >
             Cancel

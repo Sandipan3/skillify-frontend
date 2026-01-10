@@ -35,7 +35,7 @@ const Checkout = () => {
     try {
       const loaded = await loadRazorpay();
       if (!loaded) {
-        toast.error("Razorpay SDK failed to load");
+        toast.error("Razorpay failed to load");
         return;
       }
 
