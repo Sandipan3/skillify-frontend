@@ -138,13 +138,6 @@ const EditCourse = () => {
         error: (err) => err?.response?.data?.message || "Replace failed",
       }
     );
-
-    const updatedVideo = res.data.data.video;
-
-    setCourse((prev) => ({
-      ...prev,
-      videos: prev.videos.map((v) => (v._id === videoId ? updatedVideo : v)),
-    }));
   };
 
   // DELETE VIDEO
