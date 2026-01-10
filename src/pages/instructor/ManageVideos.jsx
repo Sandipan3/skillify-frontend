@@ -79,6 +79,7 @@ const ManageVideos = () => {
   };
 
   // REPLACE VIDEO
+  // REPLACE VIDEO
   const replaceVideo = async (videoId, file) => {
     if (!file || replacingVideoId) return;
 
@@ -87,22 +88,23 @@ const ManageVideos = () => {
     const formData = new FormData();
     formData.append("videos", file);
 
-    const res = await toast.promise(
-      api.put(`/course/${courseId}/videos/${videoId}/replace`, formData),
-      {
-        loading: "Replacing video...",
-        success: "Video replaced",
-        error: "Replace failed",
-      }
-    );
-
-    const updatedVideo = res.data.data.video;
-    setCourse((prev) => ({
-      ...prev,
-      videos: prev.videos.map((v) => (v._id === videoId ? updatedVideo : v)),
-    }));
-
-    setReplacingVideoId(null);
+    try {
+      // We still use toast.promise for the UX, but we don't
+      // rely on the 'res' variable to update the state.
+      await toast.promise(
+        api.put(`/course/${courseId}/videos/${videoId}/replace`, formData),
+        {
+          loading: "Replacing video...",
+          success: "Video replaced successfully",
+          error: "Replace failed",
+        }
+      );
+      await fetchCourse();
+    } catch (error) {
+      console.error("Error replacing video:", error);
+    } finally {
+      setReplacingVideoId(null);
+    }
   };
 
   if (loading) return <p className="p-6">Loading...</p>;
