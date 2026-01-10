@@ -88,7 +88,7 @@ const ManageVideos = () => {
     formData.append("videos", file);
 
     try {
-      await toast.promise(
+      const res = await toast.promise(
         api.put(`/course/${courseId}/videos/${videoId}/replace`, formData),
         {
           loading: "Replacing video...",
@@ -96,7 +96,13 @@ const ManageVideos = () => {
           error: "Replace failed",
         }
       );
-      await fetchCourse();
+
+      const updatedVideo = res.data.data.video;
+
+      setCourse((prev) => ({
+        ...prev,
+        videos: prev.videos.map((v) => (v._id === videoId ? updatedVideo : v)),
+      }));
     } catch (error) {
       console.error("Error replacing video:", error);
     } finally {
