@@ -15,6 +15,8 @@ const CoursePreview = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (passedCourse) return;
+
     const fetchCourse = async () => {
       try {
         const res = await api.get(`/course/${courseId}`);
