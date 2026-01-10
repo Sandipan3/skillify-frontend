@@ -54,7 +54,9 @@ const InstructorVideo = ({ video, replacing, onReplace, onDelete }) => {
         <div className="border-t p-3">
           {video.url ? (
             <div className="aspect-video bg-black">
-              <video src={video.url} controls className="w-full h-full" />
+              <video key={video.public_id} controls className="w-full h-full">
+                <source src={video.url} type="video/mp4" />
+              </video>
             </div>
           ) : (
             <p className="text-sm text-gray-500">No video available</p>
