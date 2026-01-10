@@ -24,7 +24,7 @@ const PaymentStatus = () => {
         toast.success("Enrollment successful!");
 
         setTimeout(() => {
-          navigate(`/s/my-courses`);
+          navigate("/s/my-courses");
         }, 1500);
       } catch (err) {
         setStatus("failed");

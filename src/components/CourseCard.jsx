@@ -41,6 +41,7 @@ const CourseCard = ({ course, onDelete }) => {
           {/* Edit */}
           <Link
             to={`/i/courses/${course._id}/edit`}
+            state={{ course }}
             className="bg-blue-500 hover:bg-blue-600 text-white py-2 text-center rounded transition"
           >
             Edit
@@ -49,6 +50,7 @@ const CourseCard = ({ course, onDelete }) => {
           {/* Videos */}
           <Link
             to={`/i/courses/${course._id}/videos`}
+            state={{ course }}
             className="bg-gray-800 hover:bg-gray-900 text-white py-2 text-center rounded transition"
           >
             Videos

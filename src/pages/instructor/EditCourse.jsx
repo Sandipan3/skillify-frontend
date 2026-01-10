@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import editCourseSchema from "../../schema/editCourseSchema";
 import api from "../../api/api";
 import InstructorVideo from "../../components/InstructorVideo";
@@ -10,10 +10,14 @@ import InstructorVideo from "../../components/InstructorVideo";
 const EditCourse = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // course passed from InstructorCourses ( CourseCard )
+  const passedCourse = location.state?.course;
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [course, setCourse] = useState({ videos: [] });
+  const [course, setCourse] = useState(passedCourse || { videos: [] });
 
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
   const [videoPreviewNames, setVideoPreviewNames] = useState([]);
@@ -37,27 +41,38 @@ const EditCourse = () => {
       const res = await api.get(`/course/${courseId}`);
       const c = res.data.data.course;
 
-      setCourse({ ...c, videos: c.videos || [] }); // Set form values from fetched data
-      setValue("title", c.title);
-      setValue("description", c.description);
-      setValue("price", c.price);
-      setValue("upiId", "");
-      setValue("videos", []);
-
-      if (!thumbnailWatch?.length) {
-        setThumbnailPreview(c.thumbnail?.url || null);
-      }
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to load course");
+      hydrateForm(c);
+      setCourse({ ...c, videos: c.videos || [] });
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to load course");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchCourse();
-  }, [courseId]); // Thumbnail preview for new upload
+  // FORM HYDRATION
+  const hydrateForm = (c) => {
+    setValue("title", c.title);
+    setValue("description", c.description);
+    setValue("price", c.price);
+    setValue("upiId", "");
+    setValue("videos", []);
+    setThumbnailPreview(c.thumbnail?.url || null);
+  };
 
+  // INITIAL LOAD
+  useEffect(() => {
+    if (passedCourse) {
+      hydrateForm(passedCourse);
+      setCourse({ ...passedCourse, videos: passedCourse.videos || [] });
+      setLoading(false);
+      return;
+    }
+
+    fetchCourse();
+  }, [courseId, passedCourse]);
+
+  // THUMBNAIL PREVIEW
   useEffect(() => {
     if (!thumbnailWatch?.length) return;
 
@@ -66,8 +81,9 @@ const EditCourse = () => {
     setThumbnailPreview(objectUrl);
 
     return () => URL.revokeObjectURL(objectUrl);
-  }, [thumbnailWatch]); // Video names preview for new uploads
+  }, [thumbnailWatch]);
 
+  //  VIDEO NAME PREVIEW
   useEffect(() => {
     if (!videosWatch?.length) {
       setVideoPreviewNames([]);
@@ -77,6 +93,7 @@ const EditCourse = () => {
     setVideoPreviewNames(Array.from(videosWatch, (file) => file.name));
   }, [videosWatch]);
 
+  // UPDATE COURSE
   const onSubmit = async (data) => {
     setSaving(true);
 
@@ -86,9 +103,7 @@ const EditCourse = () => {
     formData.append("price", data.price ?? 0);
 
     if (data.upiId) formData.append("upiId", data.upiId);
-    if (data.thumbnail?.length) {
-      formData.append("thumbnail", data.thumbnail[0]);
-    }
+    if (data.thumbnail?.length) formData.append("thumbnail", data.thumbnail[0]);
 
     if (data.videos?.length) {
       for (const file of data.videos) {
@@ -97,51 +112,53 @@ const EditCourse = () => {
     }
 
     try {
-      const updatePromise = api.put(`/course/${courseId}`, formData);
-
-      await toast.promise(updatePromise, {
+      await toast.promise(api.put(`/course/${courseId}`, formData), {
         loading: "Saving changes...",
         success: "Course updated successfully!",
-        error: (err) => err.response?.data?.message || "Update failed",
+        error: (err) => err?.response?.data?.message || "Update failed",
       });
-
-      await fetchCourse();
       navigate("/i/courses");
     } finally {
       setSaving(false);
     }
   };
 
+  // REPLACE VIDEO
   const replaceVideo = async (videoId, file) => {
     if (!file) return;
 
     const formData = new FormData();
     formData.append("videos", file);
 
-    const replacePromise = api.put(
-      `/course/${courseId}/videos/${videoId}/replace`,
-      formData
+    const res = await toast.promise(
+      api.put(`/course/${courseId}/videos/${videoId}/replace`, formData),
+      {
+        loading: "Replacing video...",
+        success: "Video replaced successfully!",
+        error: (err) => err?.response?.data?.message || "Replace failed",
+      }
     );
 
-    await toast.promise(replacePromise, {
-      loading: "Replacing video...",
-      success: "Video replaced successfully!",
-      error: (err) => err.response?.data?.message || "Replace failed",
-    });
+    const updatedVideo = res.data.data.video;
 
-    await fetchCourse();
+    setCourse((prev) => ({
+      ...prev,
+      videos: prev.videos.map((v) => (v._id === videoId ? updatedVideo : v)),
+    }));
   };
 
+  // DELETE VIDEO
   const deleteVideo = async (videoId) => {
-    const deletePromise = api.delete(`/course/${courseId}/videos/${videoId}`);
-
-    await toast.promise(deletePromise, {
+    await toast.promise(api.delete(`/course/${courseId}/videos/${videoId}`), {
       loading: "Deleting video...",
       success: "Video deleted successfully!",
-      error: (err) => err.response?.data?.message || "Delete failed",
+      error: (err) => err?.response?.data?.message || "Delete failed",
     });
 
-    await fetchCourse();
+    setCourse((prev) => ({
+      ...prev,
+      videos: prev.videos.filter((v) => v._id !== videoId),
+    }));
   };
 
   if (loading)
@@ -157,11 +174,11 @@ const EditCourse = () => {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Edit Course</h1>
+
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="bg-white p-6 rounded-lg shadow space-y-6"
       >
-        {/* Title */}
         <div>
           <label className="font-semibold">Course Title</label>
           <input
@@ -173,7 +190,7 @@ const EditCourse = () => {
             <p className="text-red-500 text-sm">{errors.title.message}</p>
           )}
         </div>
-        {/* Description */}
+
         <div>
           <label className="font-semibold">Description</label>
           <textarea
@@ -186,7 +203,7 @@ const EditCourse = () => {
             <p className="text-red-500 text-sm">{errors.description.message}</p>
           )}
         </div>
-        {/* Price */}
+
         <div>
           <label className="font-semibold">Price</label>
           <input
@@ -199,7 +216,7 @@ const EditCourse = () => {
             <p className="text-red-500 text-sm">{errors.price.message}</p>
           )}
         </div>
-        {/* UPI ID */}
+
         <div>
           <label className="font-semibold">UPI ID</label>
           <input
@@ -211,8 +228,8 @@ const EditCourse = () => {
             <p className="text-red-500 text-sm">{errors.upiId.message}</p>
           )}
         </div>
+
         <div className="grid md:grid-cols-2 gap-6">
-          {/* Thumbnail */}
           <div className="flex flex-col gap-2">
             <label className="font-semibold">Thumbnail</label>
             <input
@@ -232,7 +249,7 @@ const EditCourse = () => {
               />
             )}
           </div>
-          {/* Videos */}
+
           <div className="flex flex-col gap-2">
             <label className="font-semibold">Add New Videos</label>
             <input
@@ -254,6 +271,7 @@ const EditCourse = () => {
             )}
           </div>
         </div>
+
         <button
           type="submit"
           disabled={saving}
@@ -264,6 +282,7 @@ const EditCourse = () => {
           {saving ? "Saving..." : "Save Changes"}
         </button>
       </form>
+
       <div className="mt-10">
         <h2 className="text-xl font-semibold mb-3">Existing Videos</h2>
         <div className="space-y-3">
