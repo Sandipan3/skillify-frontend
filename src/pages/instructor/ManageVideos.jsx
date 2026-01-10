@@ -43,11 +43,11 @@ const ManageVideos = () => {
   // DELETE VIDEO
   const deleteVideo = (videoId) => {
     const toastId = toast(
-      <div className="bg-white p-4 shadow flex flex-col gap-3">
+      <div className="bg-white p-4 flex flex-col gap-3">
         <p className="font-medium">Delete this video?</p>
         <div className="flex justify-end gap-2">
           <button
-            className="px-3 py-1 rounded bg-slate-400"
+            className="px-3 py-1 rounded bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
             onClick={() => toast.dismiss(toastId)}
           >
             Cancel
