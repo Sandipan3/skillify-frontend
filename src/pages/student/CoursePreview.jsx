@@ -29,7 +29,7 @@ const CoursePreview = () => {
     };
 
     fetchCourse();
-  }, [courseId]);
+  }, [courseId, passedCourse]);
 
   if (loading) return <p>Loading course...</p>;
   if (error) return <p>{error}</p>;
