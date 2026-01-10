@@ -115,7 +115,7 @@ const ManageVideos = () => {
         <p className="text-gray-500">No videos yet</p>
       )}
 
-      {course.videos.map((video) => (
+      {course.videos.filter(Boolean).map((video) => (
         <InstructorVideo
           key={video._id}
           video={video}
