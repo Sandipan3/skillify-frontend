@@ -45,7 +45,7 @@ const AdminNavbar = () => {
   ];
 
   return (
-    <nav className="bg-amber-500 text-gray-200 p-4">
+    <nav className="bg-purple-500 text-gray-200 p-4">
       {/* Desktop Navbar */}
       <div className="hidden md:flex justify-between items-center">
         <h1 className="text-xl font-bold">Skillify</h1>
