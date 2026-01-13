@@ -47,7 +47,7 @@ const AdminInvite = () => {
         <button
           type="submit"
           disabled={loading}
-          className=" p-3 rounded-md bg-purple-500"
+          className=" p-3 rounded-md bg-purple-500 text-white"
         >
           {loading ? "Inviting..." : "Invite"}
         </button>
