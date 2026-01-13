@@ -26,10 +26,10 @@ const AdminInvite = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="">
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col justify-center items-center"
+        className="flex flex-col justify-center items-center gap-6"
       >
         <label htmlFor="email">Enter the email address</label>
         <input
@@ -41,7 +41,11 @@ const AdminInvite = () => {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <button type="submit" disabled={loading} className=" p-6 bg-purple-500">
+        <button
+          type="submit"
+          disabled={loading}
+          className=" p-3 rounded-md bg-purple-500"
+        >
           {loading ? "Inviting..." : "Invite"}
         </button>
       </form>
