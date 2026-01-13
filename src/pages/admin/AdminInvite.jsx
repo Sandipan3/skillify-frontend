@@ -31,7 +31,7 @@ const AdminInvite = () => {
         onSubmit={handleSubmit}
         className="flex flex-col justify-center items-center gap-6"
       >
-        <label htmlFor="email" className="text-2xl font-bold p-3">
+        <label htmlFor="email" className="text-2xl font-bold">
           Enter the email address
         </label>
         <input
@@ -42,6 +42,7 @@ const AdminInvite = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          className="p-3"
         />
         <button
           type="submit"
