@@ -1,6 +1,8 @@
 import { createBrowserRouter } from "react-router-dom";
 //admin pages
-
+import AdminInviteHandler from "../pages/admin/AdminInviteHandler";
+import AdminDashboard from "../pages/admin/AdminDashboard";
+import AdminInvite from "../pages/admin/AdminInvite";
 //auth pages
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
@@ -26,9 +28,9 @@ import PaymentStatus from "../pages/student/PaymentStatus";
 import Unauthorized from "../pages/others/Unauthorized";
 import LandingPage from "../pages/others/LandingPage";
 import DummyPage from "../pages/others/DummyPage";
+import ExternalLoginHandler from "../pages/others/ExternalLoginHandler";
 //components
 import ProtectedRoute from "../components/ProtectedRoute";
-import ExternalLoginHandler from "../components/ExternalLoginHandler";
 //layouts
 import StudentLayout from "./StudentLayout";
 import InstructorLayout from "./InstructorLayout";
@@ -47,6 +49,7 @@ const router = createBrowserRouter([
       { path: "auth/callback", element: <ExternalLoginHandler /> },
       { path: "forgot-password", element: <ForgotPassword /> },
       { path: "reset-password/:token", element: <ResetPassword /> },
+      { path: "admin/accept", element: <AdminInviteHandler /> },
 
       //  AUTHENTICATED (any role)
       {
@@ -62,8 +65,8 @@ const router = createBrowserRouter([
             path: "a",
             element: <AdminLayout />,
             children: [
-              { index: true, element: <div>Hi admin</div> },
-              { path: "dashboard", element: <div>Admin Dashboard</div> },
+              { index: true, element: <AdminDashboard /> },
+              { path: "invite", element: <AdminInvite /> },
             ],
           },
         ],
