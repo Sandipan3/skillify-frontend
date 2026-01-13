@@ -26,12 +26,14 @@ const AdminInvite = () => {
   };
 
   return (
-    <div className="">
+    <div>
       <form
         onSubmit={handleSubmit}
         className="flex flex-col justify-center items-center gap-6"
       >
-        <label htmlFor="email">Enter the email address</label>
+        <label htmlFor="email" className="text-2xl font-bold p-3">
+          Enter the email address
+        </label>
         <input
           type="email"
           name="email"
