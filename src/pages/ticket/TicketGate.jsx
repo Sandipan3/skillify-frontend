@@ -16,8 +16,6 @@ const TicketGate = () => {
   const checkTicket = async () => {
     try {
       const roles = user?.roles || [];
-
-      //  determine opposite role dynamically
       let targetRole = null;
       let dashboardRoute = null;
 
@@ -28,30 +26,26 @@ const TicketGate = () => {
         targetRole = "student";
         dashboardRoute = "/s";
       } else if (roles.includes("student") && roles.includes("instructor")) {
-        // user already has both roles -> just go somewhere safe
-        return navigate("/");
+        return navigate("/s");
       }
 
-      //  safety
       if (!targetRole) {
         return navigate("/");
       }
 
-      //  check pending ticket
       const res = await api.get("/ticket/my");
       const ticket = res.data.data.ticket;
 
-      // no active ticket -> allow creation
+      // no active ticket
       if (!ticket) {
         return navigate("/ticket/create");
       }
 
-      // pending -> show status
+      // pending tickets
       if (ticket.status === "created") {
         return navigate("/ticket/status");
       }
 
-      // processed (approved/rejected) -> allow new request
       return navigate("/ticket/create");
     } catch (err) {
       console.error(err);

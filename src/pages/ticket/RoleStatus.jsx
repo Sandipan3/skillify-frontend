@@ -21,7 +21,6 @@ export default function RoleStatus() {
       const ticketData = res.data.data.ticket;
       setTicket(ticketData);
 
-      //determine redirect safely
       const reqRoute = ticketData?.requestedRole === "student" ? "/s" : "/i";
 
       //auto refresh role after approval
