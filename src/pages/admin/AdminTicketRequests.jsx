@@ -39,16 +39,16 @@ export default function AdminTicketRequests() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-blue-500 flex items-center justify-center text-white">
+      <div className="min-h-screen bg-purple-500 flex items-center justify-center text-white">
         Loading requests...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-blue-500 p-4 md:p-8">
+    <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-5xl mx-auto bg-white rounded-xl shadow-lg p-6">
-        <h2 className="text-2xl md:text-3xl font-bold text-blue-600 mb-6 text-center">
+        <h2 className="text-2xl md:text-3xl font-bold text-purple-00 mb-6 text-center">
           Pending Role Requests
         </h2>
 
@@ -99,7 +99,7 @@ export default function AdminTicketRequests() {
           <button
             onClick={() => setPage((p) => Math.max(p - 1, 1))}
             disabled={page === 1}
-            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white rounded-lg"
+            className="px-4 py-2 bg-purple-500 hover:bg-blue-600 disabled:opacity-50 text-white rounded-lg"
           >
             Prev
           </button>
@@ -111,7 +111,7 @@ export default function AdminTicketRequests() {
           <button
             onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
             disabled={page === totalPages}
-            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white rounded-lg"
+            className="px-4 py-2 bg-purple-500 hover:bg-blue-600 disabled:opacity-50 text-white rounded-lg"
           >
             Next
           </button>
