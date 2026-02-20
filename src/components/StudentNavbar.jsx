@@ -51,8 +51,10 @@ const StudentNavbar = () => {
   const handleTicket = () => {
     setMobileOpen(false);
 
-    if (user?.roles?.includes("instructor")) {
-      navigate("/a");
+    const roles = user?.roles || [];
+
+    if (roles.includes("instructor")) {
+      navigate("/i");
       return;
     }
 
