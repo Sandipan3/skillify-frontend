@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { logoutUser } from "../slice/authSlice";
-import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutUser, selectCurrentUser } from "../slice/authSlice";
+import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -34,9 +34,23 @@ const InstructorNavbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const dispatch = useDispatch();
 
+  const navigate = useNavigate();
+  const user = useSelector(selectCurrentUser);
+
   const handleLogout = () => {
     dispatch(logoutUser());
     setMobileOpen(false);
+  };
+
+  const handleTicket = () => {
+    setMobileOpen(false);
+
+    if (user?.roles?.includes("student")) {
+      navigate("/s");
+      return;
+    }
+
+    navigate("/ticket");
   };
 
   const navLinks = [
@@ -57,6 +71,12 @@ const InstructorNavbar = () => {
               {link.label}
             </Link>
           ))}
+
+          <button onClick={handleTicket} className="hover:text-blue-500">
+            {user?.roles?.includes("instructor")
+              ? "Student Dashboard"
+              : "Become Student"}
+          </button>
 
           <button onClick={handleLogout} className="hover:text-red-600">
             Logout
@@ -101,6 +121,14 @@ const InstructorNavbar = () => {
                   </Link>
                 </motion.li>
               ))}
+
+              <motion.li variants={itemVariants}>
+                <button onClick={handleTicket} className="hover:text-amber-500">
+                  {user?.roles?.includes("student")
+                    ? "Student Dashboard"
+                    : "Become Student"}
+                </button>
+              </motion.li>
 
               <motion.li variants={itemVariants}>
                 <button

@@ -3,6 +3,7 @@ import { createBrowserRouter } from "react-router-dom";
 import AdminInviteHandler from "../pages/admin/AdminInviteHandler";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import AdminInvite from "../pages/admin/AdminInvite";
+import AdminTicketRequests from "../pages/admin/AdminTicketRequests";
 //auth pages
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
@@ -24,11 +25,17 @@ import CoursePlayer from "../pages/student/CoursePlayer";
 import CoursePreview from "../pages/student/CoursePreview";
 import MyCourses from "../pages/student/MyCourses";
 import PaymentStatus from "../pages/student/PaymentStatus";
+//ticket pages
+import CreateTicket from "../pages/ticket/CreateTicket";
+import RoleStatus from "../pages/ticket/RoleStatus";
+import TicketGate from "../pages/ticket/TicketGate";
+
 //other pages
 import Unauthorized from "../pages/others/Unauthorized";
 import LandingPage from "../pages/others/LandingPage";
 import DummyPage from "../pages/others/DummyPage";
 import ExternalLoginHandler from "../pages/others/ExternalLoginHandler";
+
 //components
 import ProtectedRoute from "../components/ProtectedRoute";
 //layouts
@@ -53,8 +60,13 @@ const router = createBrowserRouter([
 
       //  AUTHENTICATED (any role)
       {
-        element: <ProtectedRoute />,
-        children: [{ path: "dummy", element: <DummyPage /> }],
+        element: <ProtectedRoute allowedRoles={["instructor", "student"]} />,
+        children: [
+          { path: "dummy", element: <DummyPage /> },
+          { path: "ticket", element: <TicketGate /> },
+          { path: "ticket/create", element: <CreateTicket /> },
+          { path: "ticket/status", element: <RoleStatus /> },
+        ],
       },
 
       // ADMIN
@@ -67,6 +79,7 @@ const router = createBrowserRouter([
             children: [
               { index: true, element: <AdminDashboard /> },
               { path: "invite", element: <AdminInvite /> },
+              { path: "requests", element: <AdminTicketRequests /> },
             ],
           },
         ],
