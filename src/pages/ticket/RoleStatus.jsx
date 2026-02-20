@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
 import api from "../../api/api";
+import { useDispatch } from "react-redux";
+import { getUser } from "../../slice/authSlice";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export default function RoleStatus() {
   const [ticket, setTicket] = useState(null);
   const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchTicket();
@@ -12,9 +18,22 @@ export default function RoleStatus() {
   const fetchTicket = async () => {
     try {
       const res = await api.get("/ticket/my");
-      setTicket(res.data.data.ticket);
+      const ticketData = res.data.data.ticket;
+      setTicket(ticketData);
+
+      //determine redirect safely
+      const reqRoute = ticketData?.requestedRole === "student" ? "/s" : "/i";
+
+      //auto refresh role after approval
+      if (ticketData?.status === "approved") {
+        await dispatch(getUser()).unwrap();
+
+        setTimeout(() => {
+          navigate(reqRoute);
+        }, 1500);
+      }
     } catch (err) {
-      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to fetch ticket");
     } finally {
       setLoading(false);
     }
@@ -41,7 +60,7 @@ export default function RoleStatus() {
           Role Request Status
         </h2>
 
-        <div className="space-y-2 text-gray-700">
+        <div className="space-y-2 text-gray-700 text-center">
           <p>
             <b>Requested Role:</b> {ticket.requestedRole}
           </p>
@@ -58,7 +77,7 @@ export default function RoleStatus() {
 
         {ticket.status === "approved" && (
           <p className="text-green-600 font-medium text-center">
-            Approved — please login again
+            Approved! Redirecting...
           </p>
         )}
 

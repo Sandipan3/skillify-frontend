@@ -42,6 +42,7 @@ const AdminNavbar = () => {
   const navLinks = [
     { to: "/a", label: "Dashboard" },
     { to: "/a/invite", label: "Invite Admin" },
+    { to: "/a/requests", label: "Role Requests" },
   ];
 
   return (
