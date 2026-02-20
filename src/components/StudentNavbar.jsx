@@ -56,7 +56,7 @@ const StudentNavbar = () => {
       return;
     }
 
-    navigate("/ticket", { state: { requestedRole: "instructor" } });
+    navigate("/ticket");
   };
 
   return (
