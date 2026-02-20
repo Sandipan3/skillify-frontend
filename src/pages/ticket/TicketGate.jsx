@@ -12,7 +12,7 @@ const TicketGate = () => {
 
   const checkTicket = async () => {
     try {
-      const res = await api.get("/tickets/me");
+      const res = await api.get("/ticket/my");
       const ticket = res.data.data.ticket;
 
       if (!ticket) {
@@ -32,7 +32,15 @@ const TicketGate = () => {
     }
   };
 
-  if (loading) return <div>Checking ticket...</div>;
+  if (loading)
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-blue-500 text-white">
+        <p className="text-lg font-semibold animate-pulse">
+          Checking ticket...
+        </p>
+      </div>
+    );
+
   return null;
 };
 
