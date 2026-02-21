@@ -39,26 +39,28 @@ const navLinks = [
 const StudentNavbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const dispatch = useDispatch();
-
   const navigate = useNavigate();
   const user = useSelector(selectCurrentUser);
+
+  const roles = user?.roles || [];
+  const isInstructor = roles.includes("instructor");
+  const isAdmin = roles.includes("admin");
 
   const handleLogout = () => {
     dispatch(logoutUser());
     setMobileOpen(false);
   };
 
-  const handleTicket = () => {
+  // instructor movement
+  const handleInstructorMove = () => {
     setMobileOpen(false);
 
-    const roles = user?.roles || [];
-
-    if (roles.includes("instructor")) {
+    if (isInstructor) {
       navigate("/i");
       return;
     }
 
-    navigate("/ticket");
+    navigate("/ticket"); // request instructor role
   };
 
   return (
@@ -68,16 +70,26 @@ const StudentNavbar = () => {
         <h1 className="text-xl font-bold">Skillify</h1>
 
         <div className="flex gap-8 items-center">
+          {/* Student links */}
           {navLinks.map((link) => (
             <Link key={link.to} to={link.to} className="hover:text-white">
               {link.label}
             </Link>
           ))}
 
-          <button onClick={handleTicket} className="hover:text-amber-500">
-            {user?.roles?.includes("instructor")
-              ? "Instructor Dashboard"
-              : "Become Instructor"}
+          {/* Admin quick switch */}
+          {isAdmin && (
+            <Link to="/a" className="text-sm hover:text-white">
+              Admin
+            </Link>
+          )}
+
+          {/* Instructor movement */}
+          <button
+            onClick={handleInstructorMove}
+            className="text-sm hover:text-white"
+          >
+            {isInstructor ? "Instructor Dashboard" : "Become Instructor"}
           </button>
 
           <button onClick={handleLogout} className="hover:text-red-600">
@@ -103,7 +115,6 @@ const StudentNavbar = () => {
       <AnimatePresence>
         {mobileOpen && (
           <>
-            {/* Sidebar */}
             <motion.ul
               variants={containerVariants}
               initial="hidden"
@@ -113,6 +124,8 @@ const StudentNavbar = () => {
               className="md:hidden fixed top-0 right-0 h-full w-64 bg-blue-500 z-50 p-6 flex flex-col gap-6"
             >
               <div className="h-10"></div>
+
+              {/* Student links */}
               {navLinks.map((link) => (
                 <motion.li key={link.to} variants={itemVariants}>
                   <Link
@@ -125,11 +138,26 @@ const StudentNavbar = () => {
                 </motion.li>
               ))}
 
+              {/* Admin switch */}
+              {isAdmin && (
+                <motion.li variants={itemVariants}>
+                  <Link
+                    to="/a"
+                    onClick={() => setMobileOpen(false)}
+                    className="hover:text-white"
+                  >
+                    Admin Panel
+                  </Link>
+                </motion.li>
+              )}
+
+              {/* Instructor movement */}
               <motion.li variants={itemVariants}>
-                <button onClick={handleTicket} className="hover:text-amber-500">
-                  {user?.roles?.includes("instructor")
-                    ? "Instructor Dashboard"
-                    : "Become Instructor"}
+                <button
+                  onClick={handleInstructorMove}
+                  className="text-sm hover:text-white text-left"
+                >
+                  {isInstructor ? "Instructor Dashboard" : "Become Instructor"}
                 </button>
               </motion.li>
 

@@ -33,16 +33,16 @@ const itemVariants = {
 const AdminNavbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const dispatch = useDispatch();
+  const user = useSelector(selectCurrentUser);
+
+  const roles = user?.roles || [];
+  const isStudent = roles.includes("student");
+  const isInstructor = roles.includes("instructor");
 
   const handleLogout = () => {
     dispatch(logoutUser());
     setMobileOpen(false);
   };
-
-  const user = useSelector(selectCurrentUser);
-
-  const isStudent = user?.roles?.includes("student");
-  const isInstructor = user?.roles?.includes("instructor");
 
   const navLinks = [
     { to: "/a", label: "Dashboard" },
@@ -57,28 +57,24 @@ const AdminNavbar = () => {
         <h1 className="text-xl font-bold">Skillify</h1>
 
         <div className="flex gap-8 items-center">
-          {/* Admin Links */}
+          {/* Admin links */}
           {navLinks.map((link) => (
             <Link key={link.to} to={link.to} className="hover:text-white">
               {link.label}
             </Link>
           ))}
 
-          {/* Role Switch (minimal) */}
-          {(isStudent || isInstructor) && (
-            <div className="flex gap-4 items-center border-l border-purple-300 pl-4">
-              {isInstructor && (
-                <Link to="/i" className="text-sm hover:text-white">
-                  Instructor
-                </Link>
-              )}
+          {/* Role switch */}
+          {isInstructor && (
+            <Link to="/i" className="text-sm hover:text-white">
+              Instructor
+            </Link>
+          )}
 
-              {isStudent && (
-                <Link to="/s" className="text-sm hover:text-white">
-                  Student
-                </Link>
-              )}
-            </div>
+          {isStudent && (
+            <Link to="/s" className="text-sm hover:text-white">
+              Student
+            </Link>
           )}
 
           <button onClick={handleLogout} className="hover:text-red-600">
@@ -104,7 +100,6 @@ const AdminNavbar = () => {
       <AnimatePresence>
         {mobileOpen && (
           <>
-            {/* Sidebar */}
             <motion.ul
               variants={containerVariants}
               initial="hidden"
@@ -115,7 +110,7 @@ const AdminNavbar = () => {
             >
               <div className="h-10"></div>
 
-              {/* Admin Links */}
+              {/* Admin links */}
               {navLinks.map((link) => (
                 <motion.li key={link.to} variants={itemVariants}>
                   <Link
@@ -128,33 +123,29 @@ const AdminNavbar = () => {
                 </motion.li>
               ))}
 
-              {/* Role Switch (mobile) */}
-              {(isStudent || isInstructor) && (
-                <div className="border-t border-purple-300 pt-4">
-                  {isInstructor && (
-                    <motion.li variants={itemVariants}>
-                      <Link
-                        to="/i"
-                        onClick={() => setMobileOpen(false)}
-                        className="hover:text-white"
-                      >
-                        Instructor Panel
-                      </Link>
-                    </motion.li>
-                  )}
+              {/* Role switch */}
+              {isInstructor && (
+                <motion.li variants={itemVariants}>
+                  <Link
+                    to="/i"
+                    onClick={() => setMobileOpen(false)}
+                    className="text-sm hover:text-white"
+                  >
+                    Instructor
+                  </Link>
+                </motion.li>
+              )}
 
-                  {isStudent && (
-                    <motion.li variants={itemVariants}>
-                      <Link
-                        to="/s"
-                        onClick={() => setMobileOpen(false)}
-                        className="hover:text-white"
-                      >
-                        Student Panel
-                      </Link>
-                    </motion.li>
-                  )}
-                </div>
+              {isStudent && (
+                <motion.li variants={itemVariants}>
+                  <Link
+                    to="/s"
+                    onClick={() => setMobileOpen(false)}
+                    className="text-sm hover:text-white"
+                  >
+                    Student
+                  </Link>
+                </motion.li>
               )}
 
               <motion.li variants={itemVariants}>

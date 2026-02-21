@@ -33,24 +33,28 @@ const itemVariants = {
 const InstructorNavbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const dispatch = useDispatch();
-
   const navigate = useNavigate();
   const user = useSelector(selectCurrentUser);
+
+  const roles = user?.roles || [];
+  const isStudent = roles.includes("student");
+  const isAdmin = roles.includes("admin");
 
   const handleLogout = () => {
     dispatch(logoutUser());
     setMobileOpen(false);
   };
 
-  const handleTicket = () => {
+  // student movement logic
+  const handleStudentMove = () => {
     setMobileOpen(false);
 
-    if (user?.roles?.includes("student")) {
+    if (isStudent) {
       navigate("/s");
       return;
     }
 
-    navigate("/ticket");
+    navigate("/ticket"); // request student role
   };
 
   const navLinks = [
@@ -66,16 +70,26 @@ const InstructorNavbar = () => {
         <h1 className="text-xl font-bold">Skillify</h1>
 
         <div className="flex gap-8 items-center">
+          {/* Instructor links */}
           {navLinks.map((link) => (
             <Link key={link.to} to={link.to} className="hover:text-white">
               {link.label}
             </Link>
           ))}
 
-          <button onClick={handleTicket} className="hover:text-blue-500">
-            {user?.roles?.includes("instructor")
-              ? "Student Dashboard"
-              : "Become Student"}
+          {/* Admin quick switch */}
+          {isAdmin && (
+            <Link to="/a" className="text-sm hover:text-white">
+              Admin
+            </Link>
+          )}
+
+          {/* Student movement */}
+          <button
+            onClick={handleStudentMove}
+            className="text-sm hover:text-white"
+          >
+            {isStudent ? "Student Dashboard" : "Become Student"}
           </button>
 
           <button onClick={handleLogout} className="hover:text-red-600">
@@ -101,7 +115,6 @@ const InstructorNavbar = () => {
       <AnimatePresence>
         {mobileOpen && (
           <>
-            {/* Sidebar */}
             <motion.ul
               variants={containerVariants}
               initial="hidden"
@@ -110,6 +123,9 @@ const InstructorNavbar = () => {
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className="md:hidden fixed top-0 right-0 h-full w-64 bg-amber-500 z-50 p-6 flex flex-col gap-6"
             >
+              <div className="h-10"></div>
+
+              {/* Instructor links */}
               {navLinks.map((link) => (
                 <motion.li key={link.to} variants={itemVariants}>
                   <Link
@@ -122,11 +138,26 @@ const InstructorNavbar = () => {
                 </motion.li>
               ))}
 
+              {/* Admin switch */}
+              {isAdmin && (
+                <motion.li variants={itemVariants}>
+                  <Link
+                    to="/a"
+                    onClick={() => setMobileOpen(false)}
+                    className="hover:text-white"
+                  >
+                    Admin Panel
+                  </Link>
+                </motion.li>
+              )}
+
+              {/* Student movement */}
               <motion.li variants={itemVariants}>
-                <button onClick={handleTicket} className="hover:text-amber-500">
-                  {user?.roles?.includes("student")
-                    ? "Student Dashboard"
-                    : "Become Student"}
+                <button
+                  onClick={handleStudentMove}
+                  className="text-sm hover:text-white text-left"
+                >
+                  {isStudent ? "Student Dashboard" : "Become Student"}
                 </button>
               </motion.li>
 
