@@ -31,33 +31,19 @@ const Login = () => {
   const onSubmit = async (data) => {
     try {
       // LOGIN
-      const loginPromise = dispatch(login(data));
-
-      const loginResult = await toast.promise(loginPromise, {
+      await toast.promise(dispatch(login(data)).unwrap(), {
         loading: "Logging in...",
         success: "Login successful",
-        error: (err) => err?.response?.data?.message,
+        error: (err) => err || "Login failed",
       });
-
-      if (loginResult.error) {
-        throw { message: loginResult.payload };
-      }
 
       // FETCH USER
-      const userPromise = dispatch(getUser());
-
-      const userResult = await toast.promise(userPromise, {
+      const user = await toast.promise(dispatch(getUser()).unwrap(), {
         loading: "Fetching profile...",
-        error: "Failed to load profile",
+        error: (err) => err || "Failed to load profile",
       });
 
-      if (userResult.error || !userResult.payload) {
-        throw { message: "Unable to fetch user" };
-      }
-
-      const user = userResult.payload;
-
-      //  ONLY success toast
+      // welcome toast
       toast.success(`Welcome back, ${user.name}!`);
 
       const rolePriority = [
@@ -67,9 +53,9 @@ const Login = () => {
         { role: "user", path: "/u/" },
       ];
 
-      const userRoles = user.roles || [];
-
-      const match = rolePriority.find((r) => userRoles.includes(r.role));
+      const match = rolePriority.find((r) =>
+        (user.roles || []).includes(r.role),
+      );
 
       if (!match) {
         toast.error("Login failed (Invalid Role)");
@@ -80,7 +66,7 @@ const Login = () => {
       navigate(match.path);
       reset();
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Login failed");
+      toast.error(error || "Login failed");
     }
   };
 
