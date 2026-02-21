@@ -66,13 +66,13 @@ const AdminNavbar = () => {
 
           {/* Role switch */}
           {isInstructor && (
-            <Link to="/i" className="text-sm hover:text-white">
+            <Link to="/i" className=" hover:text-white">
               Instructor
             </Link>
           )}
 
           {isStudent && (
-            <Link to="/s" className="text-sm hover:text-white">
+            <Link to="/s" className=" hover:text-white">
               Student
             </Link>
           )}
@@ -129,7 +129,7 @@ const AdminNavbar = () => {
                   <Link
                     to="/i"
                     onClick={() => setMobileOpen(false)}
-                    className="text-sm hover:text-white"
+                    className=" hover:text-white"
                   >
                     Instructor
                   </Link>
@@ -141,7 +141,7 @@ const AdminNavbar = () => {
                   <Link
                     to="/s"
                     onClick={() => setMobileOpen(false)}
-                    className="text-sm hover:text-white"
+                    className=" hover:text-white"
                   >
                     Student
                   </Link>

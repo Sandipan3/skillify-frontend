@@ -79,16 +79,13 @@ const StudentNavbar = () => {
 
           {/* Admin quick switch */}
           {isAdmin && (
-            <Link to="/a" className="text-sm hover:text-white">
+            <Link to="/a" className=" hover:text-white">
               Admin
             </Link>
           )}
 
           {/* Instructor movement */}
-          <button
-            onClick={handleInstructorMove}
-            className="text-sm hover:text-white"
-          >
+          <button onClick={handleInstructorMove} className=" hover:text-white">
             {isInstructor ? "Instructor Dashboard" : "Become Instructor"}
           </button>
 
@@ -155,7 +152,7 @@ const StudentNavbar = () => {
               <motion.li variants={itemVariants}>
                 <button
                   onClick={handleInstructorMove}
-                  className="text-sm hover:text-white text-left"
+                  className=" hover:text-white text-left"
                 >
                   {isInstructor ? "Instructor Dashboard" : "Become Instructor"}
                 </button>
