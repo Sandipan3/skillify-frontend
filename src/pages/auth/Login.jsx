@@ -40,8 +40,7 @@ const Login = () => {
       // FETCH USER
       const user = await toast.promise(dispatch(getUser()).unwrap(), {
         loading: "Fetching profile...",
-        error: (err) =>
-          err?.message || err?.response?.data?.message || err || "Login failed",
+        error: (err) => err || "Login failed",
       });
 
       // welcome toast
@@ -67,9 +66,7 @@ const Login = () => {
       navigate(match.path);
       reset();
     } catch (err) {
-      toast.error(
-        err?.message || err?.response?.data?.message || err || "Login failed",
-      );
+      toast.error(err || "Login failed");
     }
   };
 
