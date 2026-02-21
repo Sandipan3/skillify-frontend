@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { logoutUser } from "../slice/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutUser, selectCurrentUser } from "../slice/authSlice";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -39,6 +39,11 @@ const AdminNavbar = () => {
     setMobileOpen(false);
   };
 
+  const user = useSelector(selectCurrentUser);
+
+  const isStudent = user?.roles?.includes("student");
+  const isInstructor = user?.roles?.includes("instructor");
+
   const navLinks = [
     { to: "/a", label: "Dashboard" },
     { to: "/a/invite", label: "Invite Admin" },
@@ -52,11 +57,29 @@ const AdminNavbar = () => {
         <h1 className="text-xl font-bold">Skillify</h1>
 
         <div className="flex gap-8 items-center">
+          {/* Admin Links */}
           {navLinks.map((link) => (
             <Link key={link.to} to={link.to} className="hover:text-white">
               {link.label}
             </Link>
           ))}
+
+          {/* Role Switch (minimal) */}
+          {(isStudent || isInstructor) && (
+            <div className="flex gap-4 items-center border-l border-purple-300 pl-4">
+              {isInstructor && (
+                <Link to="/i" className="text-sm hover:text-white">
+                  Instructor
+                </Link>
+              )}
+
+              {isStudent && (
+                <Link to="/s" className="text-sm hover:text-white">
+                  Student
+                </Link>
+              )}
+            </div>
+          )}
 
           <button onClick={handleLogout} className="hover:text-red-600">
             Logout
@@ -91,6 +114,8 @@ const AdminNavbar = () => {
               className="md:hidden fixed top-0 right-0 h-full w-64 bg-purple-500 z-50 p-6 flex flex-col gap-6"
             >
               <div className="h-10"></div>
+
+              {/* Admin Links */}
               {navLinks.map((link) => (
                 <motion.li key={link.to} variants={itemVariants}>
                   <Link
@@ -102,6 +127,35 @@ const AdminNavbar = () => {
                   </Link>
                 </motion.li>
               ))}
+
+              {/* Role Switch (mobile) */}
+              {(isStudent || isInstructor) && (
+                <div className="border-t border-purple-300 pt-4">
+                  {isInstructor && (
+                    <motion.li variants={itemVariants}>
+                      <Link
+                        to="/i"
+                        onClick={() => setMobileOpen(false)}
+                        className="hover:text-white"
+                      >
+                        Instructor Panel
+                      </Link>
+                    </motion.li>
+                  )}
+
+                  {isStudent && (
+                    <motion.li variants={itemVariants}>
+                      <Link
+                        to="/s"
+                        onClick={() => setMobileOpen(false)}
+                        className="hover:text-white"
+                      >
+                        Student Panel
+                      </Link>
+                    </motion.li>
+                  )}
+                </div>
+              )}
 
               <motion.li variants={itemVariants}>
                 <button
