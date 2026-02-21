@@ -66,7 +66,7 @@ const Login = () => {
       navigate(match.path);
       reset();
     } catch (err) {
-      toast.error(err || "Login failed");
+      //toast.error(err || "Login failed");
     }
   };
 
