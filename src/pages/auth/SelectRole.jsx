@@ -51,7 +51,7 @@ const SelectRole = () => {
       toast.error("Invalid role");
       navigate("/login");
     } catch (error) {
-      toast.error(error.response?.data?.message || "Something went wrong");
+      //toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
 

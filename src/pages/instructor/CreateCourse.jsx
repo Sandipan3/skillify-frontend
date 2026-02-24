@@ -77,12 +77,12 @@ const CreateCourse = () => {
           success: "Course created successfully!",
           error: (err) =>
             err?.response?.data?.message || "Something went wrong",
-        }
+        },
       );
 
       navigate("/i/courses");
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something went wrong");
+      //toast.error(error?.response?.data?.message || "Something went wrong");
     }
   };
 

@@ -43,7 +43,7 @@ const RegisterVerify = () => {
 
       navigate("/login");
     } catch (error) {
-      toast.error(error.response?.data?.message || "Verification failed");
+      //toast.error(error.response?.data?.message || "Verification failed");
     }
   };
 

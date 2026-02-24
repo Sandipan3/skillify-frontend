@@ -42,7 +42,7 @@ const Register = () => {
         state: { email: data.email },
       });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Registration failed");
+      //toast.error(error.response?.data?.message || "Registration failed");
     }
   };
 
